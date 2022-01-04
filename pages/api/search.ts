@@ -7,7 +7,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ResponseData>) 
     return
   }
   const response = await fetch(
-    `https://www.omdbapi.com/?s=${req.query.name}&y=${req.query.year}&type=movie&apikey=${process.env.apiKey}`
+    `https://www.omdbapi.com/?s=${req.query.name}&y=${req.query.year}&type=movie&apikey=${process.env.API_KEY}`
   )
   const results: SearchResult = await response.json()
 
