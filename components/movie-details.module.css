@@ -1,0 +1,7 @@
+.image img {
+  object-fit: cover;
+}
+
+.image span {
+  height: 100% !important;
+}
