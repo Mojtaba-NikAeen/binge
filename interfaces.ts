@@ -52,3 +52,29 @@ export interface ResponseData {
   data?: SearchResult
   msg?: string
 }
+
+export interface DataSWR {
+  data: Data
+}
+
+export interface Data {
+  _id: string
+  email: string
+  password: string
+  watchlist: string[]
+  watched: string[]
+  createdAt: Date
+  __v: number
+  watchlistV: Watch[]
+  watchedV: Watch[]
+  id: string
+}
+
+export interface Watch {
+  _id: string
+  imdbid: string
+  title: string
+  year: number
+  poster: string
+  __v: number
+}

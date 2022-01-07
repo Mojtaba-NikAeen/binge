@@ -2,14 +2,20 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import User from '../../../models/user'
 import { dbConnectAPI } from '../../../libs/dbconnect'
 import Movie from '../../../models/movie'
+import { getSession } from 'next-auth/react'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  const session = await getSession({ req })
+  if (!session) {
+    return res.status(401).json({ msg: 'not authorized to use this route' })
+  }
+
   if (req.method !== 'GET') {
     res.status(400).json({ msg: 'fuck you and your unsuppoted method' })
     return
   }
-  // TODO extract id from cookie and lots of other shit
-  const foundUser = await User.findOne({ _id: '61d2a3e9d90850e0045a3553' }).populate({
+
+  const foundUser = await User.findOne({ _id: session.user?.name }).populate({
     path: 'watchlistV watchedV',
     model: Movie
   })

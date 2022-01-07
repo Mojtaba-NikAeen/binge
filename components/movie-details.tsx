@@ -3,6 +3,50 @@ import { IDSearchResult } from '../interfaces'
 import classes from './movie-details.module.css'
 
 const MovieDetails = ({ results }: { results: IDSearchResult }) => {
+  const addToWatched = async () => {
+    try {
+      const res = await fetch('/api/movies/watched', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          imdbid: results.imdbID,
+          title: results.Title,
+          year: results.Year,
+          poster: results.Poster
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await res.json()
+      console.log(data)
+    } catch (error) {
+      // TODO useState for showing msg and shit
+    }
+  }
+
+  const addToWatchlist = async () => {
+    try {
+      const res = await fetch('/api/movies/watchlist', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          imdbid: results.imdbID,
+          title: results.Title,
+          year: results.Year,
+          poster: results.Poster
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await res.json()
+      console.log(data)
+    } catch (error) {
+      // TODO useState for showing msg and shit
+    }
+  }
+
   return (
     <div className='container card mb-3 mt-5'>
       <div className='row g-0'>
@@ -33,10 +77,10 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
               </small>
             </p>
             <div className='btn-group'>
-              <button type='button' className='btn btn-success'>
+              <button type='button' className='btn btn-success' onClick={addToWatched}>
                 Add to Watched
               </button>
-              <button type='button' className='btn btn-info'>
+              <button type='button' className='btn btn-info' onClick={addToWatchlist}>
                 Add to Watchlist
               </button>
             </div>

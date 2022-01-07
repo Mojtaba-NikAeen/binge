@@ -2,14 +2,19 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnectAPI } from '../../../libs/dbconnect'
 import User from '../../../models/user'
 import Movie from '../../../models/movie'
+import { getSession } from 'next-auth/react'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  const session = await getSession({ req })
+  if (!session) {
+    return res.status(401).json({ msg: 'not authorized to use this route' })
+  }
   if (req.method === 'PATCH') {
     try {
+      const userId = session.user!.name
       const { imdbid, title, year, poster } = req.body
 
-      // TODO extract user id from cookie
-      const foundUser = await User.findById('61d2a3e9d90850e0045a3553')
+      const foundUser = await User.findById(userId)
 
       if (!foundUser) {
         res.status(404).json({ msg: 'user not found' })
@@ -48,8 +53,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
   } else if (req.method === 'DELETE') {
     const { imdbid } = req.body
+    const userId = session.user!.name
 
-    const foundUser = await User.findById('61d2a3e9d90850e0045a3553')
+    const foundUser = await User.findById(userId)
 
     if (!foundUser) console.log('not found user watchlist.ts')
 
@@ -63,10 +69,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(201).json({ data: response, msg: 'removed from watchlist' })
       return
     }
-    foundUser.watchlist.filter((id: string) => id !== imdbid)
+    foundUser.watchlist = foundUser.watchlist.filter((id: string) => id !== imdbid)
 
-    const response = await foundUser.save()
-    res.status(201).json({ data: response, msg: 'removed from watchlist' })
+    await foundUser.save()
+    res.status(201).json({ success: true, msg: 'removed from watchlist' })
   } else {
     res.status(400).json({ msg: 'method not supported on this route' })
   }

@@ -12,7 +12,7 @@ const MovieDetail = ({ data }: { data: IDSearchResult }) => {
 
 export const getServerSideProps: GetServerSideProps = async context => {
   const response = await fetch(
-    `http://www.omdbapi.com/?i=${context.params!.imdbId}&apikey=${process.env.apiKey}`
+    `http://www.omdbapi.com/?i=${context.params!.imdbId}&apikey=${process.env.API_KEY}`
   )
 
   const data: IDSearchResult = await response.json()

@@ -1,23 +1,33 @@
 import { NextApiRequest, NextApiResponse } from 'next'
+import { getSession } from 'next-auth/react'
 import { dbConnectAPI } from '../../../libs/dbconnect'
 import User from '../../../models/user'
 import Movie from '../../../models/movie'
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+interface ResponseData {
+  msg: string
+  success: boolean
+}
+
+const handler = async (req: NextApiRequest, res: NextApiResponse<ResponseData>) => {
+  const session = await getSession({ req })
+  if (!session) {
+    return res.status(401).json({ success: false, msg: 'not authorized to use this route' })
+  }
   if (req.method === 'PATCH') {
     try {
+      const userId = session.user!.name
       const { imdbid, title, year, poster } = req.body
 
-      // TODO extract user id from cookie
-      const foundUser = await User.findById('61d2a3e9d90850e0045a3553')
+      const foundUser = await User.findById(userId)
 
       if (!foundUser) {
-        res.status(404).json({ msg: 'user not found' })
+        res.status(404).json({ success: false, msg: 'user not found' })
         return
       }
 
       if (foundUser.watched.includes(imdbid)) {
-        res.status(400).json({ msg: 'imdbid already in watched' })
+        res.status(400).json({ success: false, msg: 'imdbid already in watched' })
         return
       }
 
@@ -32,7 +42,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
       foundUser.watched.push(imdbid)
 
-      const response = await foundUser.save()
+      await foundUser.save()
 
       // add the movie to movie collection if it doesn't exist in there
       const foundMovie = await Movie.findOne({ imdbid: imdbid })
@@ -47,37 +57,38 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         await newMovie.save()
       }
 
-      res.status(201).json({ data: response, msg: 'added to watched' })
+      res.status(201).json({ success: true, msg: 'added to watched' })
     } catch (error) {
-      res.status(500).json({ msg: 'something went wrong' })
+      res.status(500).json({ success: false, msg: 'something went wrong' })
     }
   } else if (req.method === 'DELETE') {
     try {
       const { imdbid } = req.body
+      const userId = session.user!.name
 
-      const foundUser = await User.findById('61d2a3e9d90850e0045a3553')
+      const foundUser = await User.findById(userId)
 
       if (!foundUser) console.log('not found user watched.ts')
 
       if (!foundUser.watched.includes(imdbid)) {
-        res.status(400).json({ msg: 'no such id in watched, try again maybe' })
+        res.status(400).json({ success: false, msg: 'no such id in watched, try again maybe' })
         return
       }
       if (foundUser.watched.length === 1) {
         foundUser.watched = []
-        const response = await foundUser.save()
-        res.status(201).json({ data: response, msg: 'removed from watched' })
+        await foundUser.save()
+        res.status(201).json({ success: true, msg: 'removed from watched' })
         return
       }
-      foundUser.watched.filter((id: string) => id !== imdbid)
+      foundUser.watched = foundUser.watched.filter((id: string) => id !== imdbid)
 
-      const response = await foundUser.save()
-      res.status(201).json({ data: response, msg: 'removed from watched' })
+      await foundUser.save()
+      res.status(201).json({ success: true, msg: 'removed from watched' })
     } catch (error) {
-      res.status(500).json({ msg: 'something went wrong' })
+      res.status(500).json({ success: false, msg: 'something went wrong' })
     }
   } else {
-    res.status(400).json({ msg: 'method not supported on this route' })
+    res.status(400).json({ success: false, msg: 'method not supported on this route' })
   }
 }
 

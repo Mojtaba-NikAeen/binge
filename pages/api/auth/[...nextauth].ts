@@ -26,10 +26,7 @@ export default NextAuth({
           throw new Error('wrong credentials')
         }
 
-        return {
-          id: foundUser._id,
-          email: foundUser.email
-        }
+        return { name: foundUser.id, email: foundUser.email }
       }
     })
   ],
@@ -39,5 +36,8 @@ export default NextAuth({
   },
   session: {
     maxAge: 7 * 24 * 60 * 60
+  },
+  pages: {
+    signIn: '/auth/login'
   }
 })

@@ -1,0 +1,11 @@
+.feedback {
+  height: 2.5rem;
+}
+
+.feedback p {
+  width: 100%;
+  position: fixed;
+  z-index: 10;
+  font-size: 1.2rem;
+  color: black;
+}

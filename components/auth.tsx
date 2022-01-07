@@ -31,7 +31,15 @@ const Auth = ({ login }: AuthProps) => {
     }
 
     if (login) {
-      // TODO sign in and shit then protect some pages
+      // TODO try catch
+      const result: any = await signIn('credentials', { email, password, redirect: false })
+      if (result.error) {
+        setFormMsg(result.error)
+        return
+      }
+      setFormMsg('success')
+
+      router.replace('/')
     } else {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -51,7 +59,7 @@ const Auth = ({ login }: AuthProps) => {
       emailRef.current.value = ''
       passwordRef.current.value = ''
 
-      router.replace('/')
+      router.replace('/auth/login')
     }
   }
 
