@@ -2,9 +2,19 @@ import Image from 'next/image'
 import Link from 'next/link'
 import classes from './results.module.css'
 import { SearchResult } from '../interfaces'
-import { memo } from 'react'
+import { memo, useEffect, useState } from 'react'
 
 const Results = ({ items }: { items: SearchResult | undefined }) => {
+  const [lists, setLists] = useState<any>()
+  const [update, setUpdate] = useState<string>()
+
+  useEffect(() => {
+    fetch('/api/user')
+      .then(res => res.json())
+      .then(data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist }))
+      .catch(err => console.log(err))
+  }, [update])
+
   if (!items || items.Error) {
     return <p>{items?.Error}</p> || <p>nothing was found</p>
   }
@@ -30,6 +40,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
       btn.disabled = true
 
       btn.textContent = 'Added'
+      setUpdate('id')
       console.log(data)
     } catch (error: any) {
       const btn = document.getElementById(imdbid) as HTMLButtonElement
@@ -65,7 +76,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
       const btn = document.getElementById(`watchlist${imdbid}`) as HTMLButtonElement
       btn.disabled = true
       btn.textContent = 'Added'
-
+      setUpdate('idk')
       console.log(data)
     } catch (error: any) {
       const btn = document.getElementById(`watchlist${imdbid}`) as HTMLButtonElement
@@ -105,23 +116,32 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
                   <Link href={`/movies/${item.imdbID}`}>
                     <a className='btn btn-outline-info'>More Details</a>
                   </Link>
+
                   <button
                     id={item.imdbID}
-                    className='btn btn-outline-success'
+                    className={`btn ${
+                      lists.watched.includes(item.imdbID) ? 'btn-success' : 'btn-outline-success'
+                    }`}
+                    disabled={lists.watched.includes(item.imdbID)}
                     onClick={() =>
                       addToWatchedHandler(item.imdbID, item.Title, item.Year, item.Poster)
                     }
                   >
-                    Add to Watched
+                    {lists.watched.includes(item.imdbID) ? 'Watched' : 'Add to Watched'}
                   </button>
                   <button
-                    className='btn btn-outline-warning'
+                    className={`btn ${
+                      lists.watchlist.includes(item.imdbID) ? 'btn-warning' : 'btn-outline-warning'
+                    }`}
+                    disabled={
+                      lists.watchlist.includes(item.imdbID) || lists.watched.includes(item.imdbID)
+                    }
                     onClick={() =>
                       addToWatchlistHandler(item.imdbID, item.Title, item.Year, item.Poster)
                     }
                     id={`watchlist${item.imdbID}`}
                   >
-                    Add to Watchlist
+                    {lists.watchlist.includes(item.imdbID) ? 'In Watchlist' : 'Add to Watchlist'}
                   </button>
                 </div>
               </div>

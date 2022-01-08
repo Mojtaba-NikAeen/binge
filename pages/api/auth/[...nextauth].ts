@@ -26,7 +26,11 @@ export default NextAuth({
           throw new Error('wrong credentials')
         }
 
-        return { name: foundUser.id, email: foundUser.email }
+        return {
+          name: foundUser.id,
+          email: foundUser.email,
+          image: { watched: foundUser.watched, watchlist: foundUser.watchlist }
+        }
       }
     })
   ],

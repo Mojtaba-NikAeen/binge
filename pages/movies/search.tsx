@@ -2,7 +2,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Search from '../../components/search'
 
-const SerachPage = () => {
+const SearchPage = () => {
   const router = useRouter()
   const { status } = useSession({
     required: true,
@@ -21,4 +21,4 @@ const SerachPage = () => {
   )
 }
 
-export default SerachPage
+export default SearchPage
