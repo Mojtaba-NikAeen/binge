@@ -15,7 +15,7 @@ const SerachPage = () => {
 
   return (
     <main className='container bg-light mt-5 pb-5 rounded'>
-      <h1 className='text-center'>Search movies</h1>
+      <h1 className='text-center'>Search Movies</h1>
       <Search />
     </main>
   )

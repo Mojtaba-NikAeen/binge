@@ -31,14 +31,13 @@ const List = ({ data, watchlist, removeFn, addWatched }: ListProps) => {
     <div className='row'>
       {data.map(movie => {
         return (
-          <div className='col-md-4 mb-2' key={`${movie._id}${Math.ceil(Math.random() * 10000)}`}>
+          <div className='col-md-3 mb-2' key={`${movie._id}${Math.ceil(Math.random() * 10000)}`}>
             <div className='card'>
               <Image
                 src={movie.poster !== 'N/A' ? movie.poster : '/placeholder.png'}
                 alt={movie.title}
-                width={150}
-                height={150}
-                objectFit='initial'
+                width={200}
+                height={300}
                 unoptimized
               />
 
@@ -49,7 +48,7 @@ const List = ({ data, watchlist, removeFn, addWatched }: ListProps) => {
                   </a>
                 </Link>
 
-                <div className='btn-group'>
+                <div className='btn-group-vertical w-100 center'>
                   {watchlist && (
                     <a
                       className='btn btn-outline-success'

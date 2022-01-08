@@ -28,7 +28,7 @@ const NavBar = () => {
   )
 
   return (
-    <nav className={`navbar navbar-dark bg-dark ${classes.header}`}>
+    <nav className={`navbar navbar-dark bg-dark ${classes.header} sticky-top`}>
       <div className='container'>
         <Link href={'/'}>
           <a className={`navbar-brand ${classes.logo}`}>BingedThat</a>

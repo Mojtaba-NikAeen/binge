@@ -11,8 +11,8 @@ interface Data {
 const Search = () => {
   const [results, setResults] = useState<SearchResult>()
 
-  const searchHandler = async (year: string, name: string) => {
-    const res = await fetch(`/api/search/?name=${name}&year=${year}`)
+  const searchHandler = async (name: string) => {
+    const res = await fetch(`/api/search/?name=${name}`)
 
     const data: Data = await res.json()
     // TODO pagination for total results
