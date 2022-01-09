@@ -6,7 +6,7 @@ import { memo, useEffect, useState } from 'react'
 
 const Results = ({ items }: { items: SearchResult | undefined }) => {
   const [lists, setLists] = useState<any>()
-  const [update, setUpdate] = useState<string>()
+  const [update, setUpdate] = useState<boolean>(false)
 
   useEffect(() => {
     fetch('/api/user')
@@ -36,11 +36,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
 
       const data = await res.json()
 
-      const btn = document.getElementById(imdbid) as HTMLButtonElement
-      btn.disabled = true
-
-      btn.textContent = 'Added'
-      setUpdate('id')
+      setUpdate(ps => !ps)
       console.log(data)
     } catch (error: any) {
       const btn = document.getElementById(imdbid) as HTMLButtonElement
@@ -73,10 +69,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
 
       const data = await res.json()
 
-      const btn = document.getElementById(`watchlist${imdbid}`) as HTMLButtonElement
-      btn.disabled = true
-      btn.textContent = 'Added'
-      setUpdate('idk')
+      setUpdate(ps => !ps)
       console.log(data)
     } catch (error: any) {
       const btn = document.getElementById(`watchlist${imdbid}`) as HTMLButtonElement
@@ -95,7 +88,10 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
   return (
     <>
       {items.Search.map(item => (
-        <div className='card mb-3 mt-3' key={`${item.imdbID}${Math.ceil(Math.random() * 10000)}`}>
+        <div
+          className='card w-75 mx-auto my-3'
+          key={`${item.imdbID}${Math.ceil(Math.random() * 10000)}`}
+        >
           <div className='row g-0'>
             <div className={`col-md-4 ${classes.image}`}>
               <Image
@@ -103,7 +99,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
                 alt={`${item.Title} poster`}
                 width={431}
                 height={250}
-                quality={80}
+                unoptimized
               />
             </div>
             <div className='col-md-8'>
@@ -118,7 +114,6 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
                   </Link>
 
                   <button
-                    id={item.imdbID}
                     className={`btn ${
                       lists.watched.includes(item.imdbID) ? 'btn-success' : 'btn-outline-success'
                     }`}
@@ -139,7 +134,6 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
                     onClick={() =>
                       addToWatchlistHandler(item.imdbID, item.Title, item.Year, item.Poster)
                     }
-                    id={`watchlist${item.imdbID}`}
                   >
                     {lists.watchlist.includes(item.imdbID) ? 'In Watchlist' : 'Add to Watchlist'}
                   </button>

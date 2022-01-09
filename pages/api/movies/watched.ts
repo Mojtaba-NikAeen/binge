@@ -57,7 +57,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ResponseData>) 
         await newMovie.save()
       }
 
-      res.status(201).json({ success: true, msg: 'added to watched' })
+      res.status(201).json({ success: true, msg: 'Added to Watched' })
     } catch (error) {
       res.status(500).json({ success: false, msg: 'something went wrong' })
     }
@@ -77,13 +77,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ResponseData>) 
       if (foundUser.watched.length === 1) {
         foundUser.watched = []
         await foundUser.save()
-        res.status(201).json({ success: true, msg: 'removed from watched' })
+        res.status(201).json({ success: true, msg: 'Removed from Watched' })
         return
       }
       foundUser.watched = foundUser.watched.filter((id: string) => id !== imdbid)
 
       await foundUser.save()
-      res.status(201).json({ success: true, msg: 'removed from watched' })
+      res.status(201).json({ success: true, msg: 'Removed from Watched' })
     } catch (error) {
       res.status(500).json({ success: false, msg: 'something went wrong' })
     }

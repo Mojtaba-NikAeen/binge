@@ -4,7 +4,7 @@ import { IDSearchResult } from '../../interfaces'
 
 const MovieDetail = ({ data }: { data: IDSearchResult }) => {
   if (data.Response === 'False') {
-    return <p>{data.Error}</p>
+    return <p className='center fs-2'>{data.Error}</p>
   }
 
   return <MovieDetails results={data} />

@@ -8,7 +8,7 @@ interface FeedbackProps {
 
 const Feedback = ({ message, status }: FeedbackProps) => {
   const node = (
-    <div className={classes.feedback}>
+    <div className={`${classes.feedback} fixed-top`}>
       <p className={`center bg-${status} py-2`}>{message}</p>
     </div>
   )

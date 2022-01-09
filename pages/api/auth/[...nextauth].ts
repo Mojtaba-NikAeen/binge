@@ -28,8 +28,7 @@ export default NextAuth({
 
         return {
           name: foundUser.id,
-          email: foundUser.email,
-          image: { watched: foundUser.watched, watchlist: foundUser.watchlist }
+          email: foundUser.email
         }
       }
     })

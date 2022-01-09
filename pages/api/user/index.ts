@@ -9,7 +9,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (!session) {
     return res.status(401).json({ msg: 'not authorized to use this route' })
   }
-
   if (req.method !== 'GET') {
     res.status(400).json({ msg: 'fuck you and your unsuppoted method' })
     return
