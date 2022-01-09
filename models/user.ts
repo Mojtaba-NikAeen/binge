@@ -6,6 +6,12 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    verified: {
+      type: Boolean,
+      default: false
+    },
+    verifyToken: String,
+    verifyTokenExpire: Date,
     password: {
       type: String,
       required: true

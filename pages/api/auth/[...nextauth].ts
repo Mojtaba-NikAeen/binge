@@ -26,6 +26,10 @@ export default NextAuth({
           throw new Error('wrong credentials')
         }
 
+        if (!foundUser.verified) {
+          throw new Error('verify your email')
+        }
+
         return {
           name: foundUser.id,
           email: foundUser.email

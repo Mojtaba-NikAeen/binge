@@ -10,6 +10,7 @@ interface AuthProps {
 const Auth = ({ login }: AuthProps) => {
   const router = useRouter()
   const [formMsg, setFormMsg] = useState<string>()
+  const [verifyLink, setVerifyLink] = useState<boolean>(false)
 
   const emailRef = useRef<HTMLInputElement>(null!)
   const passwordRef = useRef<HTMLInputElement>(null!)
@@ -33,6 +34,11 @@ const Auth = ({ login }: AuthProps) => {
     if (login) {
       // TODO try catch
       const result: any = await signIn('credentials', { email, password, redirect: false })
+      if (result.error === 'verify your email') {
+        setFormMsg(result.error)
+        setVerifyLink(true)
+        return
+      }
       if (result.error) {
         setFormMsg(result.error)
         return
@@ -56,10 +62,10 @@ const Auth = ({ login }: AuthProps) => {
         return
       }
 
+      setFormMsg('a verification token has been sent to your email (expires in 15 minutes)')
+
       emailRef.current.value = ''
       passwordRef.current.value = ''
-
-      router.replace('/auth/login')
     }
   }
 
@@ -94,7 +100,8 @@ const Auth = ({ login }: AuthProps) => {
             <p className='text-center'>
               {login ? (
                 <>
-                  Not a member? <Link href={'/auth/signup'}>Sign Up</Link>
+                  Not a member? <Link href={'/auth/signup'}>Sign Up</Link> <br />
+                  {verifyLink && <Link href={'/auth/verifyemail'}>Verify Email</Link>}
                 </>
               ) : (
                 <>

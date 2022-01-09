@@ -1,7 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnectAPI } from '../../../libs/dbconnect'
 import { hash } from 'bcryptjs'
+import crypto from 'crypto'
 import User from '../../../models/user'
+import sendMail from '../../../libs/sendMail'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
@@ -29,7 +31,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       password: hashedPassword
     })
 
+    const token = crypto.randomBytes(22).toString('hex')
+    user.verifyToken = token
+    user.verifyTokenExpire = Date.now() + 15 * 60 * 1000
     const data = await user.save()
+
+    await sendMail({ to: email, secret: token })
 
     return res.status(201).json({ success: true, data: data })
   } catch (error: any) {
