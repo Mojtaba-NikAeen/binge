@@ -4,13 +4,19 @@ import { IDSearchResult } from '../../interfaces'
 
 const MovieDetail = ({ data }: { data: IDSearchResult }) => {
   if (data.Response === 'False') {
-    return <p className='center fs-2'>{data.Error}</p>
+    return <p className='center fs-2 mt-2'>{data.Error}</p>
   }
 
   return <MovieDetails results={data} />
 }
 
 export const getServerSideProps: GetServerSideProps = async context => {
+  if (!context.params!.imdbId!.includes('tt')) {
+    return {
+      props: { data: { Response: 'False', Error: 'Wrong IMDbID' } }
+    }
+  }
+
   const response = await fetch(
     `http://www.omdbapi.com/?i=${context.params!.imdbId}&apikey=${process.env.API_KEY}`
   )

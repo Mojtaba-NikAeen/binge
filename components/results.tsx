@@ -89,7 +89,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
     <>
       {items.Search.map(item => (
         <div
-          className='card w-75 mx-auto my-3'
+          className='card w-75 mx-auto my-3 border border-danger'
           key={`${item.imdbID}${Math.ceil(Math.random() * 10000)}`}
         >
           <div className='row g-0'>
