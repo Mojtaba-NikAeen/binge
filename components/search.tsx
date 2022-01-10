@@ -20,7 +20,6 @@ const Search = () => {
     const data: Data = await res.json()
 
     setName(name)
-    // TODO pagination for total results
     const totalPage = Math.ceil(+data.data.totalResults / 10)
     setPagination({ totalPage, currentPage: 1, prev: 0, next: 2, name })
     if (data.success === true) {
@@ -32,7 +31,7 @@ const Search = () => {
     const res = await fetch(`/api/search/?name=${name}&page=${page}`)
 
     const data: Data = await res.json()
-    // TODO pagination for total results
+
     const totalPage = Math.ceil(+data.data.totalResults / 10)
     setPagination({ totalPage, currentPage: page, prev: page - 1, next: page + 1, name })
     if (data.success === true) {

@@ -6,7 +6,7 @@ const Pagination = ({ totalPage, currentPage, prev, next, loadPageFn, name }: Pa
   for (let i = 1; i < totalPage + 1; i++) {
     if (i > 8) break
     listItem.push(
-      <li className={`page-item ${i === currentPage && 'active'}`}>
+      <li className={`page-item ${i === currentPage && 'active'}`} key={i}>
         <button className='page-link' onClick={() => loadPage(i, name)}>
           {i}
         </button>
