@@ -16,8 +16,11 @@ const Pagination = ({ totalPage, currentPage, prev, next, loadPageFn, name }: Pa
 
   const loadPage = async (page: number, name: string) => {
     if (page === currentPage) return
-    console.log('clicked')
-    await loadPageFn!(page, name)
+    try {
+      await loadPageFn!(page, name)
+    } catch (error: any) {
+      console.log(error.message)
+    }
   }
 
   return (

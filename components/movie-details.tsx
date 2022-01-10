@@ -36,8 +36,8 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
 
       await res.json()
       setUpdate(ps => !ps)
-    } catch (error) {
-      // TODO useState for showing msg and shit
+    } catch (error: any) {
+      console.log(error.message)
     }
   }
 
@@ -58,12 +58,10 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
 
       await res.json()
       setUpdate(ps => !ps)
-    } catch (error) {
-      // TODO useState for showing msg and shit FEEDBACK
+    } catch (error: any) {
+      console.log(error.message)
     }
   }
-
-  // TODO rating system
 
   return (
     <div className='container card mb-3 mt-5'>

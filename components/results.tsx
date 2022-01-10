@@ -37,7 +37,6 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
       const data = await res.json()
 
       setUpdate(ps => !ps)
-      console.log(data)
     } catch (error: any) {
       const btn = document.getElementById(imdbid) as HTMLButtonElement
       btn.disabled = true
@@ -70,7 +69,6 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
       const data = await res.json()
 
       setUpdate(ps => !ps)
-      console.log(data)
     } catch (error: any) {
       const btn = document.getElementById(`watchlist${imdbid}`) as HTMLButtonElement
       btn.disabled = true

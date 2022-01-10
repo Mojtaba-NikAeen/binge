@@ -32,40 +32,46 @@ const Auth = ({ login }: AuthProps) => {
     }
 
     if (login) {
-      // TODO try catch
-      const result: any = await signIn('credentials', { email, password, redirect: false })
-      if (result.error === 'verify your email') {
-        setFormMsg(result.error)
-        setVerifyLink(true)
-        return
-      }
-      if (result.error) {
-        setFormMsg(result.error)
-        return
-      }
-      setFormMsg('success')
-
-      router.replace('/')
-    } else {
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-        headers: {
-          'Content-Type': 'application/json'
+      try {
+        const result: any = await signIn('credentials', { email, password, redirect: false })
+        if (result.error === 'verify your email') {
+          setFormMsg(result.error)
+          setVerifyLink(true)
+          return
         }
-      })
+        if (result.error) {
+          setFormMsg(result.error)
+          return
+        }
+        setFormMsg('success')
 
-      const data = await res.json()
-      if (!data.success) {
-        console.log(data)
-        setFormMsg(data.msg)
-        return
+        router.replace('/')
+      } catch (error) {
+        setFormMsg('failed, try again')
       }
+    } else {
+      try {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          body: JSON.stringify({ email, password }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
 
-      setFormMsg('a verification token has been sent to your email (expires in 15 minutes)')
+        const data = await res.json()
+        if (!data.success) {
+          setFormMsg(data.msg)
+          return
+        }
 
-      emailRef.current.value = ''
-      passwordRef.current.value = ''
+        setFormMsg('a verification token has been sent to your email (expires in 15 minutes)')
+
+        emailRef.current.value = ''
+        passwordRef.current.value = ''
+      } catch (error) {
+        setFormMsg('something went wrong')
+      }
     }
   }
 
