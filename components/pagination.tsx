@@ -28,7 +28,7 @@ const Pagination = ({ totalPage, currentPage, prev, next, loadPageFn, name }: Pa
       <ul className='pagination justify-content-center'>
         <li className={`page-item ${prev === 0 && 'disabled'}`}>
           <button className='page-link' onClick={() => loadPage(currentPage - 1, name)}>
-            Previous
+            Prev
           </button>
         </li>
         {listItem.map(i => i)}
