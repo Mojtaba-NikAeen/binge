@@ -25,7 +25,7 @@ const SearchBar = ({ formHandler }: SearchBarProps) => {
   return (
     <>
       <form onSubmit={submitHandler}>
-        <div className='input-group center w-50'>
+        <div className='input-group center w-75'>
           <input type='text' className='form-control' placeholder='Movie Name' ref={nameRef} />
 
           <button className='btn btn-success'>Search</button>

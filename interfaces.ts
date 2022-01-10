@@ -78,3 +78,12 @@ export interface Watch {
   poster: string
   __v: number
 }
+
+export interface PaginationProps {
+  prev: number
+  next: number
+  currentPage: number
+  totalPage: number
+  name: string
+  loadPageFn?: (page: number, name: string) => Promise<void>
+}

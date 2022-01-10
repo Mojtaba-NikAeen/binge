@@ -22,7 +22,7 @@ const Home = () => {
           <Link href={'/auth/signup'}>
             <a
               className='btn btn-lg btn-success mx-auto'
-              style={{ display: 'block', width: '20%' }}
+              style={{ display: 'block', width: '30%' }}
             >
               Sign-up
             </a>
