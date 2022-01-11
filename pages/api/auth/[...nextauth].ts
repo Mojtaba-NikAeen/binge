@@ -37,9 +37,9 @@ export default NextAuth({
       }
     })
   ],
-  secret: 'somethingfuckingthing',
+  secret: process.env.TOKEN_SECRET,
   jwt: {
-    secret: 'jwtsecretveryhushhush'
+    secret: process.env.JWT_SECRET
   },
   session: {
     maxAge: 7 * 24 * 60 * 60
