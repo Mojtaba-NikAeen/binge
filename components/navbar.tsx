@@ -22,11 +22,10 @@ const NavBar = () => {
       <Link href={'/'}>
         <a className={`navbar-brand ${classes.logo}`}>BingedThat</a>
       </Link>
-      <Link href={''}>
-        <a className={classes.roundedBtn} onClick={() => signOut({ redirect: false })}>
-          <Image src={'/logout.png'} alt='profile logo' width={58} height={58} unoptimized />
-        </a>
-      </Link>
+
+      <a className={classes.roundedBtn} onClick={() => signOut({ redirect: false })}>
+        <Image src={'/logout.png'} alt='profile logo' width={58} height={58} unoptimized />
+      </a>
     </>
   )
 
