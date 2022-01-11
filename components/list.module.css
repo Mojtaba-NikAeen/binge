@@ -4,10 +4,7 @@
   text-overflow: ellipsis;
 }
 
-.titleText:hover {
-  white-space: normal;
-  background-color: black;
-  position: relative;
-  overflow: visible;
-  z-index: 1;
+.titleText abbr {
+  cursor: inherit;
+  text-decoration: none;
 }

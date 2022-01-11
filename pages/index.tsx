@@ -21,12 +21,14 @@ const Home = () => {
         {status === 'unauthenticated' && (
           <div className='btn-group btn-group-lg center d-block'>
             <Link href={'/auth/login'}>
-              <a className='btn btn-success'>Login</a>
+              <a className='btn btn-success buttonSize'>Login</a>
             </Link>
             <Link href={'/auth/signup'}>
-              <a className='btn btn-warning'>Sign-up</a>
+              <a className='btn btn-warning buttonSize'>Sign-up</a>
             </Link>
           </div>
+
+          // TODO comment
           // <Link href={'/auth/signup'}>
           //   <a
           //     className='btn btn-lg btn-success mx-auto'

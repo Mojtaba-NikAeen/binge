@@ -2,10 +2,22 @@
   height: 5rem;
 }
 
-.header a {
+.roundedBtn {
+  display: block;
+  height: 3.5rem;
+  width: 3.5rem;
+  border-radius: 50%;
   font-size: 1.2rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
 }
 
 .logo {
   font-size: 2rem !important;
+}
+
+@media (max-width: 768px) {
+  .logo {
+    font-size: 1.5rem !important;
+  }
 }

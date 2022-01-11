@@ -35,6 +35,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 }
 
+// TODO comment
+
 // export const getServerSideProps: GetServerSideProps = async context => {
 //   if (!context.params!.imdbId!.includes('tt')) {
 //     return {

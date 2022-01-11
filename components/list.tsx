@@ -44,8 +44,9 @@ const List = ({ data, watchlist, removeFn, addWatched }: ListProps) => {
               <div className='card-body'>
                 <Link href={`/movies/${movie.imdbid}`}>
                   <a className={`card-title d-block btn btn-outline-dark ${classes.titleText}`}>
-                    <span>{movie.title}</span>
-                    <span> ({movie.year})</span>
+                    <abbr title={`${movie.title} (${movie.year})`}>
+                      {movie.title} ({movie.year})
+                    </abbr>
                   </a>
                 </Link>
 

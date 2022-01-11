@@ -1,40 +1,38 @@
 import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
+import Image from 'next/image'
 import classes from './navbar.module.css'
 
 const NavBar = () => {
   const { status } = useSession()
 
-  // const unAuth = (
-  //   <div className='btn-group'>
-  //     <Link href={'/auth/login'}>
-  //       <a className='btn btn-success'>Login</a>
-  //     </Link>
-  //     <Link href={'/auth/signup'}>
-  //       <a className='btn btn-warning'>Sign-up</a>
-  //     </Link>
-  //   </div>
-  // )
+  const unAuth = (
+    <Link href={'/'}>
+      <a className={`navbar-brand ${classes.logo} center`}>BingedThat</a>
+    </Link>
+  )
 
   const auth = (
-    <div className='btn-group'>
+    <>
       <Link href={'/profile'}>
-        <a className='btn btn-success'>Profile</a>
+        <a className={classes.roundedBtn}>
+          <Image src={'/profile.png'} alt='profile logo' width={58} height={58} unoptimized />
+        </a>
       </Link>
-      <a className='btn btn-info' onClick={() => signOut({ redirect: false })}>
-        Logout
-      </a>
-    </div>
+      <Link href={'/'}>
+        <a className={`navbar-brand ${classes.logo}`}>BingedThat</a>
+      </Link>
+      <Link href={''}>
+        <a className={classes.roundedBtn} onClick={() => signOut({ redirect: false })}>
+          <Image src={'/logout.png'} alt='profile logo' width={58} height={58} unoptimized />
+        </a>
+      </Link>
+    </>
   )
 
   return (
     <nav className={`navbar navbar-dark bg-dark ${classes.header} sticky-top`}>
-      <div className='container'>
-        <Link href={'/'}>
-          <a className={`navbar-brand ${classes.logo}`}>BingedThat</a>
-        </Link>
-        {status === 'authenticated' && auth}
-      </div>
+      <div className='container'>{status === 'authenticated' ? auth : unAuth}</div>
     </nav>
   )
 }
