@@ -9,10 +9,21 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
   const [update, setUpdate] = useState<boolean>(false)
 
   useEffect(() => {
-    fetch('/api/user')
+    const controller = new AbortController()
+    const signal = controller.signal
+
+    fetch('/api/user', { signal })
       .then(res => res.json())
       .then(data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist }))
-      .catch(err => console.log(err))
+      .catch(err => {
+        if (err.name === 'AbortError') {
+          console.log('successfully aborted')
+        } else {
+          console.log(err)
+        }
+      })
+
+    return () => controller.abort()
   }, [update])
 
   if (!items || items.Error) {

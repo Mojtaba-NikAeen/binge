@@ -16,7 +16,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ResponseData>) 
   )
   const results: SearchResult = await response.json()
 
-  res.status(200).json({ success: true, data: results })
+  if (results.Response === 'False') {
+    res.status(404).json({ success: false, msg: 'Movie not found' })
+    return
+  }
+
+  res.status(200).json({ success: true, data: results, msg: 'wtf' })
 }
 
 export default handler

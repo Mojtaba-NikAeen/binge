@@ -99,7 +99,7 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
             <p className='card-text'>
               Metascore:{' '}
               <small className='text-muted'>
-                {results.Ratings[1] ? results.Ratings[1].Value : 'not available'}
+                {results.Metascore ? results.Metascore : 'not available'}
               </small>
             </p>
             <p className='card-text'>

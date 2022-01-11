@@ -15,6 +15,7 @@ const SearchBar = ({ formHandler }: SearchBarProps) => {
 
     if (enteredName.trim().length < 3) {
       setMsg('movie name must at least be 3 characters')
+      setTimeout(() => setMsg(undefined), 3500)
       return
     }
 
@@ -31,7 +32,7 @@ const SearchBar = ({ formHandler }: SearchBarProps) => {
           <button className='btn btn-success'>Search</button>
         </div>
       </form>
-      {msg && <p className='w-50 center lead bg-info mt-2 rounded'>{msg}</p>}
+      {msg && <p className='w-75 center lead bg-info mt-2 rounded'>{msg}</p>}
     </>
   )
 }
