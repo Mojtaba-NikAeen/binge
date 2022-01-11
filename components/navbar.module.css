@@ -12,10 +12,6 @@
   margin-right: 2rem;
 }
 
-.roundedBtn:hover {
-  cursor: pointer;
-}
-
 .logo {
   font-size: 2rem !important;
 }

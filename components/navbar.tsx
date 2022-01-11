@@ -16,7 +16,9 @@ const NavBar = () => {
     <>
       <Link href={'/profile'}>
         <a className={classes.roundedBtn}>
-          <Image src={'/profile.png'} alt='profile logo' width={58} height={58} unoptimized />
+          <abbr title='Profile' style={{ cursor: 'pointer' }}>
+            <Image src={'/profile.png'} alt='profile logo' width={58} height={58} unoptimized />
+          </abbr>
         </a>
       </Link>
       <Link href={'/'}>
@@ -24,7 +26,9 @@ const NavBar = () => {
       </Link>
 
       <a className={classes.roundedBtn} onClick={() => signOut({ redirect: false })}>
-        <Image src={'/logout.png'} alt='profile logo' width={58} height={58} unoptimized />
+        <abbr title='Logout' style={{ cursor: 'pointer' }}>
+          <Image src={'/logout.png'} alt='profile logo' width={58} height={58} unoptimized />
+        </abbr>
       </a>
     </>
   )

@@ -63,6 +63,41 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
     }
   }
 
+  const removeMovie = async () => {
+    if (isInWatchlist) {
+      try {
+        const res = await fetch('/api/movies/watchlist', {
+          method: 'DELETE',
+          body: JSON.stringify({ imdbid: results.imdbID }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+
+        await res.json()
+        setUpdate(ps => !ps)
+      } catch (error: any) {
+        console.log(error.message || 'something went wrong')
+      }
+    } else if (isInWatched) {
+      try {
+        const res = await fetch('/api/movies/watched', {
+          method: 'DELETE',
+          body: JSON.stringify({ imdbid: results.imdbID }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+
+        await res.json()
+        setUpdate(ps => !ps)
+      } catch (error: any) {
+        console.log(error.message || 'something went wrong')
+      }
+    }
+    return
+  }
+
   return (
     <div className='container card mb-3 mt-5'>
       <div className='row g-0'>
@@ -114,14 +149,21 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
               >
                 {isInWatched ? 'Watched' : 'Add to Watched'}
               </button>
-              <button
-                type='button'
-                className={`btn ${isInWatchlist ? 'btn-info' : 'btn-outline-info'}`}
-                onClick={addToWatchlist}
-                disabled={isInWatchlist || isInWatched}
-              >
-                {isInWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
-              </button>
+              {!isInWatched && (
+                <button
+                  type='button'
+                  className={`btn ${isInWatchlist ? 'btn-info' : 'btn-outline-info'}`}
+                  onClick={addToWatchlist}
+                  disabled={isInWatchlist || isInWatched}
+                >
+                  {isInWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
+                </button>
+              )}
+              {(isInWatched || isInWatchlist) && (
+                <button type='button' className='btn btn-outline-danger' onClick={removeMovie}>
+                  Remove
+                </button>
+              )}
             </div>
           </div>
         </div>
