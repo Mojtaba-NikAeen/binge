@@ -32,7 +32,7 @@ const ProfilePage = () => {
   }
 
   if (error) return <p className='center'>failed to load</p>
-  if (!data) return <p className='center'>loading</p>
+  if (!data) return <p className='center'>Loading...</p>
 
   const clearFeedback = () => setTimeout(() => setFeedback(undefined), 2000)
 
@@ -112,6 +112,10 @@ const ProfilePage = () => {
     return
   }
 
+  const sortHandler = () => {}
+
+  const orderHandler = () => {}
+
   const SearchHandler = (event: ChangeEvent<HTMLInputElement>) => {
     const foundWatched = data.data.watchedV.filter(m =>
       m.title.toUpperCase().includes(event.target.value.toUpperCase())
@@ -129,13 +133,32 @@ const ProfilePage = () => {
       <h2 className='lead mt-2'>Email: {session?.user?.email}</h2>
       <hr />
 
-      <input
-        id='searchinput'
-        type='text'
-        className='center rounded'
-        placeholder='Search through your list'
-        onChange={SearchHandler}
-      />
+      <div className='input-group w-50 center'>
+        <input
+          id='searchinput'
+          type='text'
+          className='form-control'
+          placeholder='Search in your list'
+          style={{ width: '50%' }}
+          onChange={SearchHandler}
+        />
+
+        <select className='form-select' style={{ width: '25%' }} onChange={sortHandler}>
+          <option selected disabled>
+            Sort By
+          </option>
+          <option value='year'>Year</option>
+          <option value='alphabet'>Alphabet</option>
+          <option value='date'>Date of Added</option>
+        </select>
+
+        <select className='form-select' style={{ width: '25%' }} onChange={orderHandler}>
+          <option value='asc' selected>
+            Ascending
+          </option>
+          <option value='desc'>Descending</option>
+        </select>
+      </div>
 
       <hr />
       <div className='container'>

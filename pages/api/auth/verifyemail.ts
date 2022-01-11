@@ -33,7 +33,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       user.verified = true
       await user.save()
 
-      return res.status(200).json({ success: true, msg: 'Your account has been activated' })
+      res.redirect('/auth/login')
+      return
     } catch (error) {
       res.status(500).json({ success: false, msg: 'Server error' })
       return

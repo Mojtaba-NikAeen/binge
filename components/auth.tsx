@@ -15,6 +15,8 @@ const Auth = ({ login }: AuthProps) => {
   const emailRef = useRef<HTMLInputElement>(null!)
   const passwordRef = useRef<HTMLInputElement>(null!)
 
+  const clearMsg = () => setTimeout(() => setFormMsg(undefined), 3500)
+
   const submitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -23,11 +25,13 @@ const Auth = ({ login }: AuthProps) => {
 
     if (!email || !email.includes('@')) {
       setFormMsg('please provide a valid email')
+      clearMsg()
       return
     }
 
     if (!password || password.length < 6) {
       setFormMsg('please provide a valid password (no less than 6 characters)')
+      clearMsg()
       return
     }
 
@@ -36,18 +40,21 @@ const Auth = ({ login }: AuthProps) => {
         const result: any = await signIn('credentials', { email, password, redirect: false })
         if (result.error === 'verify your email') {
           setFormMsg(result.error)
+          clearMsg()
           setVerifyLink(true)
           return
         }
         if (result.error) {
           setFormMsg(result.error)
+          clearMsg()
           return
         }
-        setFormMsg('success')
+        setFormMsg('Success')
 
-        router.replace('/')
+        setTimeout(() => router.replace('/'), 500)
       } catch (error) {
         setFormMsg('failed, try again')
+        clearMsg()
       }
     } else {
       try {
@@ -66,11 +73,13 @@ const Auth = ({ login }: AuthProps) => {
         }
 
         setFormMsg('a verification token has been sent to your email (expires in 15 minutes)')
+        clearMsg()
 
         emailRef.current.value = ''
         passwordRef.current.value = ''
       } catch (error) {
         setFormMsg('something went wrong')
+        clearMsg()
       }
     }
   }

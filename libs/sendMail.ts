@@ -19,7 +19,7 @@ const sendMail = async (options: Options) => {
       from: '"BingedThat" <something@something.com>',
       to: options.to,
       subject: 'Email Verification',
-      text: `click on this link to verify your email ${process.env.SERVER_URL}/api/auth/verifyemail?token=${options.secret}`
+      text: `click on this link and if it's successful, it will redirect you to the login page ${process.env.SERVER_URL}/api/auth/verifyemail?token=${options.secret}`
     })
 
     console.log('Message sent: %s', info.messageId)
