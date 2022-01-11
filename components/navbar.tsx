@@ -5,16 +5,16 @@ import classes from './navbar.module.css'
 const NavBar = () => {
   const { status } = useSession()
 
-  const unAuth = (
-    <div className='btn-group'>
-      <Link href={'/auth/login'}>
-        <a className='btn btn-success'>Login</a>
-      </Link>
-      <Link href={'/auth/signup'}>
-        <a className='btn btn-warning'>Sign-up</a>
-      </Link>
-    </div>
-  )
+  // const unAuth = (
+  //   <div className='btn-group'>
+  //     <Link href={'/auth/login'}>
+  //       <a className='btn btn-success'>Login</a>
+  //     </Link>
+  //     <Link href={'/auth/signup'}>
+  //       <a className='btn btn-warning'>Sign-up</a>
+  //     </Link>
+  //   </div>
+  // )
 
   const auth = (
     <div className='btn-group'>
@@ -33,7 +33,7 @@ const NavBar = () => {
         <Link href={'/'}>
           <a className={`navbar-brand ${classes.logo}`}>BingedThat</a>
         </Link>
-        {status === 'unauthenticated' ? unAuth : auth}
+        {status === 'authenticated' && auth}
       </div>
     </nav>
   )

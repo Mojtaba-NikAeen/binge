@@ -19,14 +19,22 @@ const Home = () => {
           totam corporis pariatur voluptate deleniti molestias laborum.
         </p>
         {status === 'unauthenticated' && (
-          <Link href={'/auth/signup'}>
-            <a
-              className='btn btn-lg btn-success mx-auto'
-              style={{ display: 'block', width: '30%' }}
-            >
-              Sign-up
-            </a>
-          </Link>
+          <div className='btn-group btn-group-lg center d-block'>
+            <Link href={'/auth/login'}>
+              <a className='btn btn-success'>Login</a>
+            </Link>
+            <Link href={'/auth/signup'}>
+              <a className='btn btn-warning'>Sign-up</a>
+            </Link>
+          </div>
+          // <Link href={'/auth/signup'}>
+          //   <a
+          //     className='btn btn-lg btn-success mx-auto'
+          //     style={{ display: 'block', width: '30%' }}
+          //   >
+          //     Sign-up
+          //   </a>
+          // </Link>
         )}
       </main>
       {status === 'authenticated' && (
