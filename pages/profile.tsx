@@ -21,6 +21,8 @@ const ProfilePage = () => {
   const [fWatchlist, setFWatchlist] = useState<Watch[] | null>(null)
   const router = useRouter()
 
+  console.log(fWatched)
+
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated: () => router.replace('/')
@@ -31,12 +33,18 @@ const ProfilePage = () => {
     return <></>
   }
 
-  if (error) return <p className='center'>failed to load</p>
+  if (error) return <p className='center'>Failed to Load</p>
   if (!data) return <p className='center'>Loading...</p>
 
   const clearFeedback = () => setTimeout(() => setFeedback(undefined), 2000)
 
   const clearInput = () => ((document.getElementById('searchinput') as HTMLInputElement).value = '')
+
+  const refreshOrder = () =>
+    ((document.getElementById('orderSelect') as HTMLSelectElement).value = 'asc')
+
+  const refreshSort = () =>
+    ((document.getElementById('sortSelect') as HTMLSelectElement).value = 'date')
 
   const addFn = async (imdbid: string) => {
     try {
@@ -112,9 +120,72 @@ const ProfilePage = () => {
     return
   }
 
-  const sortHandler = () => {}
+  const sortHandler = (event: ChangeEvent<HTMLSelectElement>) => {
+    if (fWatched) {
+      switch (event.target.value) {
+        case 'date':
+          setFWatched(prevState =>
+            data.data.watchedV.filter(({ imdbid: di }) =>
+              [...prevState!].some(({ imdbid: si }) => di === si)
+            )
+          )
+          setFWatchlist(prevState =>
+            data.data.watchlistV.filter(({ imdbid: di }) =>
+              [...prevState!].some(({ imdbid: si }) => di === si)
+            )
+          )
+          refreshOrder()
+          break
+        case 'year':
+          setFWatched(prevState => [...prevState!].sort((a, b) => a.year - b.year))
+          setFWatchlist(prevState => [...prevState!].sort((a, b) => a.year - b.year))
+          refreshOrder()
+          break
+        case 'alphabet':
+          setFWatched(prevState => [...prevState!].sort((a, b) => (a.title > b.title ? 1 : 0)))
+          setFWatchlist(prevState => [...prevState!].sort((a, b) => (a.title > b.title ? 1 : 0)))
+          refreshOrder()
+          break
+        default:
+          break
+      }
+    } else {
+      switch (event.target.value) {
+        case 'date':
+          setFWatched(data.data.watchedV)
+          setFWatchlist(data.data.watchlistV)
+          refreshOrder()
+          break
+        case 'year':
+          setFWatched([...data.data.watchedV].sort((a, b) => a.year - b.year))
+          setFWatchlist([...data.data.watchlistV].sort((a, b) => a.year - b.year))
+          refreshOrder()
+          break
+        case 'alphabet':
+          setFWatched([...data.data.watchedV].sort((a, b) => (a.title > b.title ? 1 : 0)))
+          setFWatchlist([...data.data.watchlistV].sort((a, b) => (a.title > b.title ? 1 : 0)))
+          refreshOrder()
+          break
+        default:
+          break
+      }
+    }
+  }
 
-  const orderHandler = () => {}
+  const orderHandler = (event: ChangeEvent<HTMLSelectElement>) => {
+    if (fWatched) {
+      setFWatched(prevState => [...prevState!].reverse())
+      setFWatchlist(prevState => [...prevState!].reverse())
+    } else {
+      if (event.target.value === 'asc') {
+        setFWatched(data.data.watchedV)
+        setFWatchlist(data.data.watchlistV)
+      } else if (event.target.value === 'desc') {
+        setFWatched([...data.data.watchedV].reverse())
+        setFWatchlist([...data.data.watchlistV].reverse())
+      }
+    }
+  }
 
   const SearchHandler = (event: ChangeEvent<HTMLInputElement>) => {
     const foundWatched = data.data.watchedV.filter(m =>
@@ -124,6 +195,8 @@ const ProfilePage = () => {
       m.title.toUpperCase().includes(event.target.value.toUpperCase())
     )
 
+    refreshOrder()
+    refreshSort()
     setFWatched(foundWatched)
     setFWatchlist(foundWatchlist)
   }
@@ -133,30 +206,37 @@ const ProfilePage = () => {
       <h2 className='lead mt-2'>Email: {session?.user?.email}</h2>
       <hr />
 
-      <div className='input-group w-50 center'>
+      <div className='input-group w-50 center divProfile'>
         <input
           id='searchinput'
           type='text'
-          className='form-control'
+          className='form-control inputProfile'
           placeholder='Search in your list'
           style={{ width: '50%' }}
           onChange={SearchHandler}
         />
 
-        <select className='form-select' style={{ width: '25%' }} onChange={sortHandler}>
-          <option selected disabled>
-            Sort By
-          </option>
+        <select
+          id='sortSelect'
+          className='form-select searchProfile'
+          defaultValue='date'
+          style={{ width: '25%' }}
+          onChange={sortHandler}
+        >
+          <option value='date'>Date</option>
           <option value='year'>Year</option>
-          <option value='alphabet'>Alphabet</option>
-          <option value='date'>Date of Added</option>
+          <option value='alphabet'>A-Z</option>
         </select>
 
-        <select className='form-select' style={{ width: '25%' }} onChange={orderHandler}>
-          <option value='asc' selected>
-            Ascending
-          </option>
-          <option value='desc'>Descending</option>
+        <select
+          id='orderSelect'
+          className='form-select searchProfile'
+          defaultValue='asc'
+          style={{ width: '25%' }}
+          onChange={orderHandler}
+        >
+          <option value='asc'>Asc</option>
+          <option value='desc'>Desc</option>
         </select>
       </div>
 

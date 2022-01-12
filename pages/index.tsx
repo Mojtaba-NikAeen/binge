@@ -6,7 +6,7 @@ const Home = () => {
   const { status } = useSession()
 
   if (status === 'loading') {
-    return <p className='center fs-2'>loading...</p>
+    return <p className='center fs-5 mt-5'>Loading...</p>
   }
 
   return (
@@ -27,16 +27,6 @@ const Home = () => {
               <a className='btn btn-warning buttonSize'>Sign-up</a>
             </Link>
           </div>
-
-          // TODO comment
-          // <Link href={'/auth/signup'}>
-          //   <a
-          //     className='btn btn-lg btn-success mx-auto'
-          //     style={{ display: 'block', width: '30%' }}
-          //   >
-          //     Sign-up
-          //   </a>
-          // </Link>
         )}
       </main>
       {status === 'authenticated' && (

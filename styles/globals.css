@@ -29,3 +29,19 @@ h6 {
 .buttonSize {
   width: 15%;
 }
+
+@media (max-width: 900px) {
+  .searchProfile {
+    width: 33% !important;
+  }
+
+  .inputProfile {
+    width: 33% !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .divProfile {
+    width: 100% !important;
+  }
+}
