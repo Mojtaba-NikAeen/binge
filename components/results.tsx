@@ -45,7 +45,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
         }
       })
 
-      const data = await res.json()
+      await res.json()
 
       setUpdate(ps => !ps)
     } catch (error: any) {
@@ -77,7 +77,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
         }
       })
 
-      const data = await res.json()
+      await res.json()
 
       setUpdate(ps => !ps)
     } catch (error: any) {

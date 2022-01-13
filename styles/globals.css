@@ -32,15 +32,21 @@ h6 {
 
 @media (max-width: 900px) {
   .searchProfile {
-    width: 33% !important;
+    width: 25% !important;
   }
 
   .inputProfile {
-    width: 33% !important;
+    width: 25% !important;
   }
 }
 
-@media (max-width: 600px) {
+@media (min-width: 900px) {
+  .divProfile {
+    width: 65% !important;
+  }
+}
+
+@media (max-width: 768px) {
   .divProfile {
     width: 100% !important;
   }

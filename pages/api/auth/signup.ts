@@ -10,7 +10,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(422).json({ success: false, msg: 'method not supported' })
   }
 
-  // check if email & password is provided
   const { email, password } = req.body
 
   if (!email || !password) {
@@ -18,12 +17,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   try {
-    // checking if email exists already
     const foundEmail = await User.findOne({ email })
     if (foundEmail) {
       return res.status(400).json({ success: false, msg: 'already a user with this email' })
     }
-    // hashing the password
+
     const hashedPassword = await hash(password, 12)
 
     const user = new User({

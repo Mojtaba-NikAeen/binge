@@ -1,4 +1,4 @@
-import { GetServerSideProps, GetStaticPaths, GetStaticProps } from 'next'
+import { GetStaticPaths, GetStaticProps } from 'next'
 import MovieDetails from '../../components/movie-details'
 import { IDSearchResult } from '../../interfaces'
 
@@ -34,25 +34,5 @@ export const getStaticPaths: GetStaticPaths = async () => {
     fallback: 'blocking'
   }
 }
-
-// TODO comment
-
-// export const getServerSideProps: GetServerSideProps = async context => {
-//   if (!context.params!.imdbId!.includes('tt')) {
-//     return {
-//       props: { data: { Response: 'False', Error: 'Wrong IMDbID' } }
-//     }
-//   }
-
-//   const response = await fetch(
-//     `http://www.omdbapi.com/?i=${context.params!.imdbId}&apikey=${process.env.API_KEY}`
-//   )
-
-//   const data: IDSearchResult = await response.json()
-
-//   return {
-//     props: { data }
-//   }
-// }
 
 export default MovieDetail

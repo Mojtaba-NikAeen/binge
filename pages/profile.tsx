@@ -1,6 +1,4 @@
 import { useSession } from 'next-auth/react'
-import Image from 'next/image'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { ChangeEvent, useState } from 'react'
 import useSWR from 'swr'
@@ -15,19 +13,69 @@ interface Feedback {
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
-const ProfilePage = () => {
-  const [feedback, setFeedback] = useState<Feedback>()
-  const [fWatched, setFWatched] = useState<Watch[] | null>(null)
-  const [fWatchlist, setFWatchlist] = useState<Watch[] | null>(null)
-  const router = useRouter()
+const splitData = (array: any[], part: number, number: number) =>
+  array ? array.slice(0, part * number) : undefined
 
-  console.log(fWatched)
+const ProfilePage = () => {
+  const [watchedPage, setWatchedPage] = useState({ pageNumber: 1, totalPage: 0, totalResults: 0 })
+  const [watchlistPage, setWatchlistPage] = useState({
+    pageNumber: 1,
+    totalPage: 0,
+    totalResults: 0
+  })
+
+  const [fWatched, setFWatched] = useState<Watch[] | undefined>(undefined)
+  const [fWatchlist, setFWatchlist] = useState<Watch[] | undefined>(undefined)
+
+  const [showList, setShowList] = useState<string>('both')
+  const [reqType, setReqType] = useState<string | undefined>()
+  const [feedback, setFeedback] = useState<Feedback>()
+
+  const router = useRouter()
 
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated: () => router.replace('/')
   })
-  const { data, error, mutate } = useSWR<DataSWR>('/api/user/', fetcher)
+
+  const { data, error, mutate } = useSWR<DataSWR>('/api/user/', fetcher, {
+    onSuccess: data => {
+      if (fWatched && reqType === 'remove') {
+        setFWatched(ps =>
+          ps!.filter(({ imdbid: di }) =>
+            [...data.data.watchedV].some(({ imdbid: si }) => di === si)
+          )
+        )
+
+        setFWatchlist(ps =>
+          ps!.filter(({ imdbid: di }) =>
+            [...data.data.watchlistV].some(({ imdbid: si }) => di === si)
+          )
+        )
+        setReqType(undefined)
+
+        return
+      }
+
+      setWatchedPage({
+        pageNumber: 1,
+        totalResults: data.data.watchedV.length,
+        totalPage: Math.ceil(data.data.watchedV.length / 4)
+      })
+      setWatchlistPage({
+        pageNumber: 1,
+        totalResults: data.data.watchlistV.length,
+        totalPage: Math.ceil(data.data.watchlistV.length / 4)
+      })
+      setFWatched(data.data.watchedV)
+      setFWatchlist(data.data.watchlistV)
+
+      refreshOrder()
+      refreshSort()
+      clearInput()
+    },
+    revalidateOnFocus: false
+  })
 
   if (status === 'loading') {
     return <></>
@@ -58,11 +106,23 @@ const ProfilePage = () => {
       })
 
       const data = await res.json()
-      setFWatched(null)
-      setFWatchlist(null)
-      mutate()
       setFeedback({ message: data.msg, status: 'success' })
       clearFeedback()
+
+      setWatchlistPage(ps => ({
+        pageNumber:
+          ps.pageNumber > Math.ceil((ps.totalResults - 1) / 4) ? ps.pageNumber - 1 : ps.pageNumber,
+        totalResults: ps.totalResults - 1,
+        totalPage: Math.ceil((ps.totalResults - 1) / 4)
+      }))
+
+      setWatchedPage(ps => ({
+        pageNumber:
+          ps.pageNumber > Math.ceil((ps.totalResults + 1) / 4) ? ps.pageNumber - 1 : ps.pageNumber,
+        totalResults: ps.totalResults + 1,
+        totalPage: Math.ceil((ps.totalResults + 1) / 4)
+      }))
+      mutate()
       clearInput()
     } catch (error: any) {
       console.log(error.message || 'something went wrong')
@@ -84,9 +144,15 @@ const ProfilePage = () => {
         const data = await res.json()
         setFeedback({ message: data.msg, status: 'success' })
         clearFeedback()
-        clearInput()
-        setFWatched(null)
-        setFWatchlist(null)
+        setWatchlistPage(ps => ({
+          pageNumber:
+            ps.pageNumber > Math.ceil((ps.totalResults - 1) / 4)
+              ? ps.pageNumber - 1
+              : ps.pageNumber,
+          totalResults: ps.totalResults - 1,
+          totalPage: Math.ceil((ps.totalResults - 1) / 4)
+        }))
+        setReqType('remove')
         mutate()
       } catch (error: any) {
         setFeedback({ message: 'Something Went Wrong', status: 'danger' })
@@ -105,12 +171,20 @@ const ProfilePage = () => {
         })
 
         const data = await res.json()
-        setFWatched(null)
-        setFWatchlist(null)
-        clearInput()
-        mutate()
-        setFeedback({ message: data.msg, status: 'success' })
+        setFeedback({ message: data.msg, status: 'Success' })
         clearFeedback()
+
+        setWatchedPage(ps => ({
+          pageNumber:
+            ps.pageNumber > Math.ceil((ps.totalResults - 1) / 4)
+              ? ps.pageNumber - 1
+              : ps.pageNumber,
+          totalResults: ps.totalResults - 1,
+          totalPage: Math.ceil((ps.totalResults - 1) / 4)
+        }))
+
+        setReqType('remove')
+        mutate()
       } catch (error: any) {
         setFeedback({ message: 'Something Went Wrong', status: 'danger' })
         clearFeedback()
@@ -121,70 +195,42 @@ const ProfilePage = () => {
   }
 
   const sortHandler = (event: ChangeEvent<HTMLSelectElement>) => {
-    if (fWatched) {
-      switch (event.target.value) {
-        case 'date':
-          setFWatched(prevState =>
+    switch (event.target.value) {
+      case 'date':
+        fWatched!.length < 2 ||
+          setFWatched(ps =>
             data.data.watchedV.filter(({ imdbid: di }) =>
-              [...prevState!].some(({ imdbid: si }) => di === si)
+              [...ps!].some(({ imdbid: si }) => di === si)
             )
           )
-          setFWatchlist(prevState =>
+        fWatchlist!.length < 2 ||
+          setFWatchlist(ps =>
             data.data.watchlistV.filter(({ imdbid: di }) =>
-              [...prevState!].some(({ imdbid: si }) => di === si)
+              [...ps!].some(({ imdbid: si }) => di === si)
             )
           )
-          refreshOrder()
-          break
-        case 'year':
-          setFWatched(prevState => [...prevState!].sort((a, b) => a.year - b.year))
-          setFWatchlist(prevState => [...prevState!].sort((a, b) => a.year - b.year))
-          refreshOrder()
-          break
-        case 'alphabet':
-          setFWatched(prevState => [...prevState!].sort((a, b) => (a.title > b.title ? 1 : 0)))
-          setFWatchlist(prevState => [...prevState!].sort((a, b) => (a.title > b.title ? 1 : 0)))
-          refreshOrder()
-          break
-        default:
-          break
-      }
-    } else {
-      switch (event.target.value) {
-        case 'date':
-          setFWatched(data.data.watchedV)
-          setFWatchlist(data.data.watchlistV)
-          refreshOrder()
-          break
-        case 'year':
-          setFWatched([...data.data.watchedV].sort((a, b) => a.year - b.year))
-          setFWatchlist([...data.data.watchlistV].sort((a, b) => a.year - b.year))
-          refreshOrder()
-          break
-        case 'alphabet':
-          setFWatched([...data.data.watchedV].sort((a, b) => (a.title > b.title ? 1 : 0)))
-          setFWatchlist([...data.data.watchlistV].sort((a, b) => (a.title > b.title ? 1 : 0)))
-          refreshOrder()
-          break
-        default:
-          break
-      }
+        refreshOrder()
+        break
+      case 'year':
+        fWatched!.length < 2 || setFWatched(ps => [...ps!].sort((a, b) => a.year - b.year))
+        fWatchlist!.length < 2 || setFWatchlist(ps => [...ps!].sort((a, b) => a.year - b.year))
+        refreshOrder()
+        break
+      case 'alphabet':
+        fWatched!.length < 2 ||
+          setFWatched(ps => [...ps!].sort((a, b) => (a.title > b.title ? 1 : 0)))
+        fWatchlist!.length < 2 ||
+          setFWatchlist(ps => [...ps!].sort((a, b) => (a.title > b.title ? 1 : 0)))
+        refreshOrder()
+        break
+      default:
+        break
     }
   }
 
   const orderHandler = (event: ChangeEvent<HTMLSelectElement>) => {
-    if (fWatched) {
-      setFWatched(prevState => [...prevState!].reverse())
-      setFWatchlist(prevState => [...prevState!].reverse())
-    } else {
-      if (event.target.value === 'asc') {
-        setFWatched(data.data.watchedV)
-        setFWatchlist(data.data.watchlistV)
-      } else if (event.target.value === 'desc') {
-        setFWatched([...data.data.watchedV].reverse())
-        setFWatchlist([...data.data.watchlistV].reverse())
-      }
-    }
+    setFWatched(ps => [...ps!].reverse())
+    setFWatchlist(ps => [...ps!].reverse())
   }
 
   const SearchHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -197,22 +243,142 @@ const ProfilePage = () => {
 
     refreshOrder()
     refreshSort()
+    setWatchedPage(ps => ({ ...ps, totalPage: Math.ceil(foundWatched.length / 4), pageNumber: 1 }))
+    setWatchlistPage(ps => ({
+      ...ps,
+      totalPage: Math.ceil(foundWatchlist.length / 4),
+      pageNumber: 1
+    }))
     setFWatched(foundWatched)
     setFWatchlist(foundWatchlist)
   }
 
+  const watched = (
+    <>
+      <h3>Watched</h3>
+      {fWatched && fWatched.length === 0 && <p className='center fs-3 lead'>Nothing</p>}
+      <List
+        data={splitData(fWatched!, 4, watchedPage.pageNumber) || data.data.watchedV}
+        watchlist={false}
+        removeFn={removeMovie}
+      />
+
+      {watchedPage.totalPage === 1 ||
+        fWatched?.length === 0 ||
+        (!(watchedPage.pageNumber === watchedPage.totalPage) ? (
+          <div className='btn-group w-100'>
+            <button
+              className='btn btn-outline-primary w-50 mb-2'
+              onClick={() => {
+                setWatchedPage(ps => ({ ...ps, pageNumber: ps.pageNumber + 1 }))
+              }}
+            >
+              Load More
+            </button>
+            {watchedPage.pageNumber > 1 && (
+              <button
+                className='btn btn-outline-info w-50 mb-2'
+                onClick={() => {
+                  setWatchedPage(ps => ({ ...ps, pageNumber: ps.pageNumber - 1 }))
+                }}
+              >
+                Less
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className='btn-group w-100'>
+            <button
+              className='btn btn-outline-danger w-50 mb-2'
+              onClick={() => {
+                setWatchedPage(ps => ({ ...ps, pageNumber: 1 }))
+              }}
+            >
+              Close
+            </button>
+            <button
+              className='btn btn-outline-info w-50 mb-2'
+              onClick={() => {
+                setWatchedPage(ps => ({ ...ps, pageNumber: ps.pageNumber - 1 }))
+              }}
+            >
+              Less
+            </button>
+          </div>
+        ))}
+    </>
+  )
+
+  const watchlist = (
+    <>
+      <h3>Watchlist</h3>
+      {fWatchlist && fWatchlist.length === 0 && <p className='center fs-3 lead mb-3'>Nothing</p>}
+      <List
+        data={splitData(fWatchlist!, 4, watchlistPage.pageNumber) || data.data.watchlistV}
+        watchlist
+        removeFn={removeMovie}
+        addWatched={addFn}
+      />
+
+      {watchlistPage.totalPage === 1 ||
+        fWatchlist?.length === 0 ||
+        (!(watchlistPage.pageNumber === watchlistPage.totalPage) ? (
+          <div className='btn-group w-100'>
+            <button
+              className='btn btn-outline-primary w-50 mb-2'
+              onClick={() => {
+                setWatchlistPage(ps => ({ ...ps, pageNumber: ps.pageNumber + 1 }))
+              }}
+            >
+              Load More
+            </button>
+
+            {watchlistPage.pageNumber > 1 && (
+              <button
+                className='btn btn-outline-info w-50 mb-2'
+                onClick={() => {
+                  setWatchlistPage(ps => ({ ...ps, pageNumber: ps.pageNumber - 1 }))
+                }}
+              >
+                Less
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className='btn-group w-100'>
+            <button
+              className='btn btn-outline-danger w-50 mb-2'
+              onClick={() => {
+                setWatchlistPage(ps => ({ ...ps, pageNumber: 1 }))
+              }}
+            >
+              Close
+            </button>
+            <button
+              className='btn btn-outline-info w-50 mb-2'
+              onClick={() => {
+                setWatchlistPage(ps => ({ ...ps, pageNumber: ps.pageNumber - 1 }))
+              }}
+            >
+              Less
+            </button>
+          </div>
+        ))}
+    </>
+  )
+
   return (
-    <div className='container card rounded bg-light mt-3'>
-      <h2 className='lead mt-2'>Email: {session?.user?.email}</h2>
+    <div className='container card rounded bg-light mt-3 mb-4'>
+      <h2 className='lead mt-2'>Email: {session!.user!.email}</h2>
       <hr />
 
-      <div className='input-group w-50 center divProfile'>
+      <div className='input-group center divProfile'>
         <input
           id='searchinput'
           type='text'
           className='form-control inputProfile'
           placeholder='Search in your list'
-          style={{ width: '50%' }}
+          style={{ width: '40%' }}
           onChange={SearchHandler}
         />
 
@@ -220,7 +386,7 @@ const ProfilePage = () => {
           id='sortSelect'
           className='form-select searchProfile'
           defaultValue='date'
-          style={{ width: '25%' }}
+          style={{ width: '18%' }}
           onChange={sortHandler}
         >
           <option value='date'>Date</option>
@@ -232,31 +398,39 @@ const ProfilePage = () => {
           id='orderSelect'
           className='form-select searchProfile'
           defaultValue='asc'
-          style={{ width: '25%' }}
+          style={{ width: '20%' }}
           onChange={orderHandler}
         >
           <option value='asc'>Asc</option>
           <option value='desc'>Desc</option>
+        </select>
+
+        <select
+          className='form-select searchProfile'
+          style={{ width: '22%' }}
+          defaultValue='both'
+          onChange={e => setShowList(e.target.value)}
+        >
+          <option value='both'>Both</option>
+          <option value='watched'>Watched</option>
+          <option value='watchlist'>Watchlist</option>
         </select>
       </div>
 
       <hr />
       <div className='container'>
         {feedback && <Feedback message={feedback.message} status={feedback.status} />}
-        <h3>Watched</h3>
-        {data.data.watchedV.length === 0 && <p className='center fs-2 lead'>Nothing yet</p>}
-        <List data={fWatched || data.data.watchedV} watchlist={false} removeFn={removeMovie} />
-      </div>
-      <hr />
-      <div className='container'>
-        <h3>Watchlist</h3>
-        {data.data.watchlistV.length === 0 && <p className='center fs-2 lead mb-3'>Nothing yet</p>}
-        <List
-          data={fWatchlist || data.data.watchlistV}
-          watchlist
-          removeFn={removeMovie}
-          addWatched={addFn}
-        />
+
+        {showList === 'both' && (
+          <>
+            {watched}
+            <hr />
+            {watchlist}
+          </>
+        )}
+
+        {showList === 'watched' && watched}
+        {showList === 'watchlist' && watchlist}
       </div>
     </div>
   )

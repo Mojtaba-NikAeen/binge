@@ -7,25 +7,28 @@ const VerifyEmailPage = () => {
   const submitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const email = emailRef.current.value
+    try {
+      const res = await fetch('/api/auth/verifyemail', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
 
-    const res = await fetch('/api/auth/verifyemail', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-      headers: {
-        'Content-Type': 'application/json'
+      const data = await res.json()
+
+      if (!data.success) {
+        setFormMsg(data.msg)
+        setTimeout(() => setFormMsg(undefined), 4000)
+        return
       }
-    })
 
-    const data = await res.json()
-
-    if (!data.success) {
       setFormMsg(data.msg)
-      setTimeout(() => setFormMsg(undefined), 4000)
       return
+    } catch (error: any) {
+      setFormMsg(error.message || 'something went wrong, try again later')
     }
-
-    setFormMsg(data.msg)
-    return
   }
 
   return (

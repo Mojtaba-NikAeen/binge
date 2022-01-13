@@ -31,7 +31,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ResponseData>) 
         return
       }
 
-      // checks if movie is in watchlist and if it is, removes it
       if (foundUser.watchlist.includes(imdbid)) {
         if (foundUser.watchlist.length === 1) {
           foundUser.watchlist = []
@@ -44,7 +43,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ResponseData>) 
 
       await foundUser.save()
 
-      // add the movie to movie collection if it doesn't exist in there
       const foundMovie = await Movie.findOne({ imdbid: imdbid })
       if (!foundMovie) {
         const newMovie = new Movie({
