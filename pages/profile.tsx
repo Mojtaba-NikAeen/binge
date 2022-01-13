@@ -16,6 +16,14 @@ const fetcher = (url: string) => fetch(url).then(res => res.json())
 const splitData = (array: any[], part: number, number: number) =>
   array ? array.slice(0, part * number) : undefined
 
+const clearInput = () => ((document.getElementById('searchinput') as HTMLInputElement).value = '')
+
+const refreshOrder = () =>
+  ((document.getElementById('orderSelect') as HTMLSelectElement).value = 'asc')
+
+const refreshSort = () =>
+  ((document.getElementById('sortSelect') as HTMLSelectElement).value = 'date')
+
 const ProfilePage = () => {
   const [watchedPage, setWatchedPage] = useState({ pageNumber: 1, totalPage: 0, totalResults: 0 })
   const [watchlistPage, setWatchlistPage] = useState({
@@ -85,14 +93,6 @@ const ProfilePage = () => {
   if (!data) return <p className='center'>Loading...</p>
 
   const clearFeedback = () => setTimeout(() => setFeedback(undefined), 2000)
-
-  const clearInput = () => ((document.getElementById('searchinput') as HTMLInputElement).value = '')
-
-  const refreshOrder = () =>
-    ((document.getElementById('orderSelect') as HTMLSelectElement).value = 'asc')
-
-  const refreshSort = () =>
-    ((document.getElementById('sortSelect') as HTMLSelectElement).value = 'date')
 
   const addFn = async (imdbid: string) => {
     try {

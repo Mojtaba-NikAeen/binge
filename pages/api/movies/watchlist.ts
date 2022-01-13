@@ -74,7 +74,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     await foundUser.save()
     res.status(201).json({ success: true, msg: 'removed from watchlist' })
   } else {
-    res.status(400).json({ msg: 'method not supported on this route' })
+    res.status(400).json({ msg: 'method not supported' })
   }
 }
 

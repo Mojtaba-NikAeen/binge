@@ -86,7 +86,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ResponseData>) 
       res.status(500).json({ success: false, msg: 'something went wrong' })
     }
   } else {
-    res.status(400).json({ success: false, msg: 'method not supported on this route' })
+    res.status(400).json({ success: false, msg: 'method not supported' })
   }
 }
 
