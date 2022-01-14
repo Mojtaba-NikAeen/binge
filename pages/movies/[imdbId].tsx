@@ -7,7 +7,7 @@ import { IDSearchResult, Torrent } from '../../interfaces'
 
 const MovieDetail = ({ data }: { data: IDSearchResult }) => {
   const router = useRouter()
-  const [torrents, setTorrents] = useState<Torrent | undefined>()
+  const [torrents, setTorrents] = useState<Torrent[] | undefined>()
   const { status } = useSession({
     required: true,
     onUnauthenticated: () => router.replace('/')
@@ -15,17 +15,32 @@ const MovieDetail = ({ data }: { data: IDSearchResult }) => {
 
   useEffect(() => {
     if (status === 'authenticated') {
+      const controller = new AbortController()
+      const signal = controller.signal
+
       fetch('/api/findtorrent', {
         method: 'POST',
         body: JSON.stringify({ imdbid: router.query.imdbId }),
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        signal
       })
         .then(res => res.json())
-        .then((torrents: Torrent) => {
-          setTorrents(torrents)
+        .then(torrents => {
+          if (torrents.success === true) {
+            setTorrents(torrents.data)
+          }
         })
+        .catch(err => {
+          if (err.name === 'AbortError') {
+            console.log('successfully aborted')
+          } else {
+            console.log(err)
+          }
+        })
+
+      return () => controller.abort()
     }
   }, [router.query.imdbId, status])
 
@@ -37,9 +52,36 @@ const MovieDetail = ({ data }: { data: IDSearchResult }) => {
     return <p className='center fs-2 mt-2'>{data.Error}</p>
   }
 
-  console.log(torrents)
+  return (
+    <>
+      <MovieDetails results={data} />
 
-  return <MovieDetails results={data} />
+      <div className='container bg-light rounded-3 mt-5'>
+        <h3 className='mt-2 mb-2 center'>Download this movie via torrent</h3>
+        <ul className='list-group pb-4 center'>
+          {torrents ? (
+            torrents.map(d => (
+              <li
+                key={d.hash}
+                className='list-group-item d-flex justify-content-between align-items-start'
+              >
+                <div className='ms-2 me-auto'>
+                  <div className='fw-bold'>
+                    {data.Title} {data.Year} {d.quality} {d.type}
+                  </div>
+                </div>
+                <a href={d.url} className='badge btn btn-dark'>
+                  Download
+                </a>
+              </li>
+            ))
+          ) : (
+            <p>No torrent was found for this movie</p>
+          )}
+        </ul>
+      </div>
+    </>
+  )
 }
 
 export const getStaticProps: GetStaticProps = async context => {

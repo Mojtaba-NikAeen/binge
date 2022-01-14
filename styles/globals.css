@@ -21,6 +21,10 @@ h6 {
   color: #2b2b2b;
 }
 
+ul {
+  list-style-type: none;
+}
+
 .center {
   margin: auto;
   text-align: center;
