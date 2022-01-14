@@ -1,20 +1,33 @@
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 import MovieDetails from '../../components/movie-details'
 import { IDSearchResult, Torrent } from '../../interfaces'
 
-interface MovieDetailProps {
-  data: IDSearchResult
-  torrents: Torrent
-}
-
-const MovieDetail = ({ data, torrents }: MovieDetailProps) => {
+const MovieDetail = ({ data }: { data: IDSearchResult }) => {
   const router = useRouter()
+  const [torrents, setTorrents] = useState<Torrent | undefined>()
   const { status } = useSession({
     required: true,
     onUnauthenticated: () => router.replace('/')
   })
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetch(`${process.env.SERVER_URL}/api/findtorrent`, {
+        method: 'POST',
+        body: JSON.stringify({ imdbid: router.query.imdbId }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(res => res.json())
+        .then((torrents: Torrent) => {
+          setTorrents(torrents)
+        })
+    }
+  }, [router.query.imdbId, status])
 
   if (status === 'loading') {
     return <></>
@@ -42,18 +55,8 @@ export const getStaticProps: GetStaticProps = async context => {
 
   const data: IDSearchResult = await response.json()
 
-  const yifyRes = await fetch('/api/findtorrent', {
-    method: 'POST',
-    body: JSON.stringify({ imdbid: context.params!.imdbId }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-
-  const yifyTorrents: Torrent = await yifyRes.json()
-
   return {
-    props: { data, torrents: yifyTorrents }
+    props: { data }
   }
 }
 
