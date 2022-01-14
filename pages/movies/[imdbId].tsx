@@ -15,7 +15,7 @@ const MovieDetail = ({ data }: { data: IDSearchResult }) => {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      fetch(`${process.env.SERVER_URL}/api/findtorrent`, {
+      fetch('/api/findtorrent', {
         method: 'POST',
         body: JSON.stringify({ imdbid: router.query.imdbId }),
         headers: {
