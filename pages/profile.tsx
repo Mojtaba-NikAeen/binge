@@ -171,7 +171,7 @@ const ProfilePage = () => {
         })
 
         const data = await res.json()
-        setFeedback({ message: data.msg, status: 'Success' })
+        setFeedback({ message: data.msg, status: 'success' })
         clearFeedback()
 
         setWatchedPage(ps => ({

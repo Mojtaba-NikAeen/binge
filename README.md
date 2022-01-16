@@ -8,3 +8,4 @@ This is a [Next.js](https://nextjs.org/) project.
 - search for movies using title
 - add or remove movies from your lists
 - search through your lists
+- get all available YIFY torrent files for a movie

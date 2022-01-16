@@ -6,7 +6,7 @@ const Home = () => {
   const { status } = useSession()
 
   if (status === 'loading') {
-    return <p className='center fs-5 mt-5'>Loading...</p>
+    return <p className='center fs-5 mt-3'>Loading...</p>
   }
 
   return (
