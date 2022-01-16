@@ -54,4 +54,8 @@ ul {
   .divProfile {
     width: 100% !important;
   }
+
+  .buttonSize {
+    width: 35%;
+  }
 }
