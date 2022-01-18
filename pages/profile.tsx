@@ -1,4 +1,5 @@
-import { useSession } from 'next-auth/react'
+import { GetServerSideProps } from 'next'
+import { getSession, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { ChangeEvent, useState } from 'react'
 import useSWR from 'swr'
@@ -85,9 +86,7 @@ const ProfilePage = () => {
     revalidateOnFocus: false
   })
 
-  if (status === 'loading') {
-    return <></>
-  }
+  if (status === 'loading') return <></>
 
   if (error) return <p className='center'>Failed to Load</p>
   if (!data) return <p className='center'>Loading...</p>
@@ -434,6 +433,14 @@ const ProfilePage = () => {
       </div>
     </div>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async context => {
+  return {
+    props: {
+      session: await getSession(context)
+    }
+  }
 }
 
 export default ProfilePage

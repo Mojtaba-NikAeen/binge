@@ -4,9 +4,9 @@ import Layout from '../components/layout'
 import Head from 'next/head'
 import { SessionProvider } from 'next-auth/react'
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
-    <SessionProvider>
+    <SessionProvider session={session}>
       <Layout>
         <Head>
           <title>BingedThat</title>

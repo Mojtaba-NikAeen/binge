@@ -11,8 +11,6 @@ interface ListProps {
 }
 
 const List = ({ data, watchlist, removeFn, addWatched }: ListProps) => {
-  if (!data) return <p className='center fs-3 lead'>Nothing ASDASD yet</p>
-
   const addToWatchedHandler = (imdbid: string) => {
     if (addWatched) {
       addWatched(imdbid)

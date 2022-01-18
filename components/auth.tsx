@@ -49,9 +49,8 @@ const Auth = ({ login }: AuthProps) => {
           clearMsg()
           return
         }
-        setFormMsg('Success')
 
-        setTimeout(() => router.replace('/'), 500)
+        router.replace('/')
       } catch (error) {
         setFormMsg('failed, try again')
         clearMsg()

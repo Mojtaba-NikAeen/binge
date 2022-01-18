@@ -7,7 +7,9 @@ import { IDSearchResult, Torrent } from '../../interfaces'
 
 const MovieDetail = ({ data }: { data: IDSearchResult }) => {
   const router = useRouter()
+
   const [torrents, setTorrents] = useState<Torrent[] | undefined>()
+
   const { status } = useSession({
     required: true,
     onUnauthenticated: () => router.replace('/')
@@ -44,9 +46,7 @@ const MovieDetail = ({ data }: { data: IDSearchResult }) => {
     }
   }, [router.query.imdbId, status])
 
-  if (status === 'loading') {
-    return <></>
-  }
+  if (status === 'loading') return <></>
 
   if (data.Response === 'False') {
     return <p className='center fs-2 mt-2'>{data.Error}</p>

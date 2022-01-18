@@ -25,7 +25,7 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
     return () => controller.abort()
   }, [update])
 
-  if (!lists) return <p className='center fs-3'>Loading...</p>
+  if (!lists) return <p className='center fs-4 mt-2'>Loading...</p>
 
   const isInWatched = lists.watched.includes(results.imdbID)
   const isInWatchlist = lists.watchlist.includes(results.imdbID)

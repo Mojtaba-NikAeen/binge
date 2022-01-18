@@ -1,13 +1,10 @@
-import { useSession } from 'next-auth/react'
+import { GetServerSideProps } from 'next'
+import { getSession, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import Search from '../components/search'
 
 const Home = () => {
   const { status } = useSession()
-
-  if (status === 'loading') {
-    return <p className='center fs-5 mt-3'>Loading...</p>
-  }
 
   return (
     <div>
@@ -37,6 +34,12 @@ const Home = () => {
       )}
     </div>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async context => {
+  return {
+    props: { session: await getSession(context) }
+  }
 }
 
 export default Home
