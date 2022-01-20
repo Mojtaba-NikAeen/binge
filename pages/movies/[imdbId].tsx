@@ -1,50 +1,41 @@
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import useSWR from 'swr'
 import MovieDetails from '../../components/movie-details'
-import { IDSearchResult, Torrent } from '../../interfaces'
+import { IDSearchResult, Torrent, YIFYResult } from '../../interfaces'
+
+const fetcher = (url: string) => fetch(url).then(res => res.json())
 
 const MovieDetail = ({ data }: { data: IDSearchResult }) => {
   const router = useRouter()
 
   const [torrents, setTorrents] = useState<Torrent[] | undefined>()
+  const [posterHQ, setPosterHQ] = useState<string | undefined>()
 
   const { status } = useSession({
     required: true,
     onUnauthenticated: () => router.replace('/')
   })
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      const controller = new AbortController()
-      const signal = controller.signal
-
-      fetch('/api/findtorrent', {
-        method: 'POST',
-        body: JSON.stringify({ imdbid: router.query.imdbId }),
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        signal
-      })
-        .then(res => res.json())
-        .then(torrents => {
-          if (torrents.success === true) {
-            setTorrents(torrents.data)
+  useSWR(
+    status === 'authenticated'
+      ? `https://yts.mx/api/v2/list_movies.json?query_term=${router.query.imdbId}`
+      : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      onSuccess: (dataS: YIFYResult) => {
+        if (dataS.status === 'ok' && dataS.data.movie_count > 0) {
+          setTorrents(dataS.data.movies[0].torrents)
+          if (dataS.data.movies[0].large_cover_image) {
+            setPosterHQ(dataS.data.movies[0].large_cover_image)
           }
-        })
-        .catch(err => {
-          if (err.name === 'AbortError') {
-            console.log('successfully aborted')
-          } else {
-            console.log(err)
-          }
-        })
-
-      return () => controller.abort()
+        }
+      }
     }
-  }, [router.query.imdbId, status])
+  )
 
   if (status === 'loading') return <></>
 
@@ -54,7 +45,7 @@ const MovieDetail = ({ data }: { data: IDSearchResult }) => {
 
   return (
     <>
-      <MovieDetails results={data} />
+      <MovieDetails results={data} hqPoster={posterHQ} />
 
       <div className='container bg-light rounded-3 mt-5'>
         <h3 className='mt-2 mb-2 center'>Download this movie via torrent</h3>
@@ -87,7 +78,7 @@ const MovieDetail = ({ data }: { data: IDSearchResult }) => {
 export const getStaticProps: GetStaticProps = async context => {
   if (!context.params!.imdbId!.includes('tt')) {
     return {
-      props: { data: { Response: 'False', Error: 'Wrong IMDbID' } }
+      props: { data: { Response: 'False', Error: 'Incorrect IMDb ID' } }
     }
   }
 

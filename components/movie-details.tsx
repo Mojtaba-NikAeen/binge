@@ -1,29 +1,24 @@
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import useSWR from 'swr'
 import { IDSearchResult } from '../interfaces'
 import classes from './movie-details.module.css'
 
-const MovieDetails = ({ results }: { results: IDSearchResult }) => {
+const fetcher = (url: string) => fetch(url).then(res => res.json())
+
+const MovieDetails = ({
+  results,
+  hqPoster
+}: {
+  results: IDSearchResult
+  hqPoster: string | undefined
+}) => {
   const [lists, setLists] = useState<any>()
-  const [update, setUpdate] = useState<boolean>(false)
 
-  useEffect(() => {
-    const controller = new AbortController()
-    const signal = controller.signal
-
-    fetch('/api/user', { signal })
-      .then(res => res.json())
-      .then(data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist }))
-      .catch(err => {
-        if (err.name === 'AbortError') {
-          console.log('successfully aborted')
-        } else {
-          console.log(err)
-        }
-      })
-
-    return () => controller.abort()
-  }, [update])
+  const { mutate } = useSWR('/api/user', fetcher, {
+    onSuccess: data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist }),
+    revalidateOnFocus: false
+  })
 
   if (!lists) return <p className='center fs-4 mt-2'>Loading...</p>
 
@@ -46,7 +41,7 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
       })
 
       await res.json()
-      setUpdate(ps => !ps)
+      mutate()
     } catch (error: any) {
       console.log(error.message)
     }
@@ -68,7 +63,7 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
       })
 
       await res.json()
-      setUpdate(ps => !ps)
+      mutate()
     } catch (error: any) {
       console.log(error.message)
     }
@@ -86,7 +81,7 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
         })
 
         await res.json()
-        setUpdate(ps => !ps)
+        mutate()
       } catch (error: any) {
         console.log(error.message || 'something went wrong')
       }
@@ -101,7 +96,7 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
         })
 
         await res.json()
-        setUpdate(ps => !ps)
+        mutate()
       } catch (error: any) {
         console.log(error.message || 'something went wrong')
       }
@@ -109,12 +104,18 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
     return
   }
 
+  const poster = hqPoster
+    ? hqPoster
+    : results.Poster !== 'N/A'
+    ? results.Poster
+    : '/placeholder.png'
+
   return (
-    <div className='container card mb-3 mt-5'>
+    <div className='container card mb-3 mt-5 p-0'>
       <div className='row g-0'>
         <div className={`col-md-5 ${classes.image}`}>
           <Image
-            src={results.Poster !== 'N/A' ? results.Poster : '/placeholder.png'}
+            src={poster}
             alt={`${results.Title} poster`}
             width={300}
             height={444}
