@@ -1,5 +1,5 @@
 import { GetServerSideProps, GetStaticPaths, GetStaticProps } from 'next'
-import { useSession } from 'next-auth/react'
+import { getSession, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import useSWR from 'swr'
@@ -20,10 +20,10 @@ const MovieDetail = ({
   // const [torrents, setTorrents] = useState<Torrent[] | undefined>()
   // const [posterHQ, setPosterHQ] = useState<string | undefined>()
 
-  const { status } = useSession({
-    required: true,
-    onUnauthenticated: () => router.replace('/')
-  })
+  // const { status } = useSession({
+  //   required: true,
+  //   onUnauthenticated: () => router.replace('/')
+  // })
 
   // useSWR(
   //   status === 'authenticated'
@@ -41,7 +41,7 @@ const MovieDetail = ({
   //   }
   // )
 
-  if (status === 'loading') return <></>
+  // if (status === 'loading') return <></>
 
   if (data.Response === 'False') {
     return <p className='center fs-2 mt-2'>{data.Error}</p>
@@ -80,6 +80,17 @@ const MovieDetail = ({
 }
 
 export const getServerSideProps: GetServerSideProps = async context => {
+  const session = await getSession(context)
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+    }
+  }
+
   if (!context.params!.imdbId!.includes('tt')) {
     return {
       props: { data: { Response: 'False', Error: 'Incorrect IMDb ID' } }
