@@ -1,4 +1,4 @@
-import { GetStaticPaths, GetStaticProps } from 'next'
+import { GetServerSideProps, GetStaticPaths, GetStaticProps } from 'next'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
@@ -6,32 +6,40 @@ import useSWR from 'swr'
 import MovieDetails from '../../components/movie-details'
 import { IDSearchResult, Torrent, YIFYResult } from '../../interfaces'
 
-const MovieDetail = ({ data }: { data: IDSearchResult }) => {
+const MovieDetail = ({
+  data,
+  torrents,
+  poster
+}: {
+  data: IDSearchResult
+  torrents: Torrent[]
+  poster: string
+}) => {
   const router = useRouter()
 
-  const [torrents, setTorrents] = useState<Torrent[] | undefined>()
-  const [posterHQ, setPosterHQ] = useState<string | undefined>()
+  // const [torrents, setTorrents] = useState<Torrent[] | undefined>()
+  // const [posterHQ, setPosterHQ] = useState<string | undefined>()
 
   const { status } = useSession({
     required: true,
     onUnauthenticated: () => router.replace('/')
   })
 
-  useSWR(
-    status === 'authenticated'
-      ? `https://yts.mx/api/v2/list_movies.json?query_term=${router.query.imdbId}`
-      : null,
-    {
-      onSuccess: (dataS: YIFYResult) => {
-        if (dataS.status === 'ok' && dataS.data.movie_count > 0) {
-          setTorrents(dataS.data.movies[0].torrents)
-          if (dataS.data.movies[0].large_cover_image) {
-            setPosterHQ(dataS.data.movies[0].large_cover_image)
-          }
-        }
-      }
-    }
-  )
+  // useSWR(
+  //   status === 'authenticated'
+  //     ? `https://yts.mx/api/v2/list_movies.json?query_term=${router.query.imdbId}`
+  //     : null,
+  //   {
+  //     onSuccess: (dataS: YIFYResult) => {
+  //       if (dataS.status === 'ok' && dataS.data.movie_count > 0) {
+  //         setTorrents(dataS.data.movies[0].torrents)
+  //         if (dataS.data.movies[0].large_cover_image) {
+  //           setPosterHQ(dataS.data.movies[0].large_cover_image)
+  //         }
+  //       }
+  //     }
+  //   }
+  // )
 
   if (status === 'loading') return <></>
 
@@ -41,7 +49,7 @@ const MovieDetail = ({ data }: { data: IDSearchResult }) => {
 
   return (
     <>
-      <MovieDetails results={data} hqPoster={posterHQ} />
+      <MovieDetails results={data} hqPoster={poster} />
 
       <div className='container bg-light rounded-3 mt-5'>
         <h3 className='mt-2 mb-2 center'>Download this movie via torrent</h3>
@@ -71,7 +79,7 @@ const MovieDetail = ({ data }: { data: IDSearchResult }) => {
   )
 }
 
-export const getStaticProps: GetStaticProps = async context => {
+export const getServerSideProps: GetServerSideProps = async context => {
   if (!context.params!.imdbId!.includes('tt')) {
     return {
       props: { data: { Response: 'False', Error: 'Incorrect IMDb ID' } }
@@ -84,16 +92,48 @@ export const getStaticProps: GetStaticProps = async context => {
 
   const data: IDSearchResult = await response.json()
 
+  const yify = await fetch(
+    `https://yts.mx/api/v2/list_movies.json?query_term=${context.params!.imdbId}`
+  )
+  const yifyRes: YIFYResult = await yify.json()
+
+  let torrents
+  let poster
+  if (yifyRes.status === 'ok' && yifyRes.data.movie_count > 0) {
+    torrents = yifyRes.data.movies[0].torrents
+    if (yifyRes.data.movies[0].large_cover_image) {
+      poster = yifyRes.data.movies[0].large_cover_image
+    }
+  }
+
   return {
-    props: { data }
+    props: { data, torrents, poster }
   }
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: 'blocking'
-  }
-}
+// export const getStaticProps: GetStaticProps = async context => {
+//   if (!context.params!.imdbId!.includes('tt')) {
+//     return {
+//       props: { data: { Response: 'False', Error: 'Incorrect IMDb ID' } }
+//     }
+//   }
+
+//   const response = await fetch(
+//     `http://www.omdbapi.com/?i=${context.params!.imdbId}&apikey=${process.env.API_KEY}`
+//   )
+
+//   const data: IDSearchResult = await response.json()
+
+//   return {
+//     props: { data }
+//   }
+// }
+
+// export const getStaticPaths: GetStaticPaths = async () => {
+//   return {
+//     paths: [],
+//     fallback: 'blocking'
+//   }
+// }
 
 export default MovieDetail
