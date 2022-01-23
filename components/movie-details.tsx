@@ -4,8 +4,6 @@ import useSWR from 'swr'
 import { IDSearchResult } from '../interfaces'
 import classes from './movie-details.module.css'
 
-const fetcher = (url: string) => fetch(url).then(res => res.json())
-
 const MovieDetails = ({
   results,
   hqPoster
@@ -15,9 +13,8 @@ const MovieDetails = ({
 }) => {
   const [lists, setLists] = useState<any>()
 
-  const { mutate } = useSWR('/api/user', fetcher, {
-    onSuccess: data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist }),
-    revalidateOnFocus: false
+  const { mutate } = useSWR('/api/user', {
+    onSuccess: data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist })
   })
 
   if (!lists) return <p className='center fs-4 mt-2'>Loading...</p>

@@ -3,28 +3,14 @@ import Link from 'next/link'
 import classes from './results.module.css'
 import { SearchResult } from '../interfaces'
 import { memo, useEffect, useState } from 'react'
+import useSWR from 'swr'
 
 const Results = ({ items }: { items: SearchResult | undefined }) => {
   const [lists, setLists] = useState<any>()
-  const [update, setUpdate] = useState<boolean>(false)
 
-  useEffect(() => {
-    const controller = new AbortController()
-    const signal = controller.signal
-
-    fetch('/api/user', { signal })
-      .then(res => res.json())
-      .then(data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist }))
-      .catch(err => {
-        if (err.name === 'AbortError') {
-          console.log('successfully aborted')
-        } else {
-          console.log(err)
-        }
-      })
-
-    return () => controller.abort()
-  }, [update])
+  const { mutate } = useSWR('/api/user', {
+    onSuccess: data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist })
+  })
 
   if (!items || items.Error) {
     return <p>{items?.Error}</p> || <p>nothing was found</p>
@@ -47,7 +33,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
 
       await res.json()
 
-      setUpdate(ps => !ps)
+      mutate()
     } catch (error: any) {
       const btn = document.getElementById(imdbid) as HTMLButtonElement
       btn.disabled = true
@@ -79,7 +65,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
 
       await res.json()
 
-      setUpdate(ps => !ps)
+      mutate()
     } catch (error: any) {
       const btn = document.getElementById(`watchlist${imdbid}`) as HTMLButtonElement
       btn.disabled = true

@@ -12,8 +12,6 @@ interface Feedback {
   status: string
 }
 
-const fetcher = (url: string) => fetch(url).then(res => res.json())
-
 const splitData = (array: any[], part: number, number: number) =>
   array ? array.slice(0, part * number) : undefined
 
@@ -47,7 +45,7 @@ const ProfilePage = () => {
     onUnauthenticated: () => router.replace('/')
   })
 
-  const { data, error, mutate } = useSWR<DataSWR>('/api/user/', fetcher, {
+  const { data, error, mutate } = useSWR<DataSWR>('/api/user/', {
     onSuccess: data => {
       if (fWatched && reqType === 'remove') {
         setFWatched(ps =>
@@ -82,8 +80,7 @@ const ProfilePage = () => {
       refreshOrder()
       refreshSort()
       clearInput()
-    },
-    revalidateOnFocus: false
+    }
   })
 
   if (status === 'loading') return <></>

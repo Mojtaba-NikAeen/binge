@@ -6,8 +6,6 @@ import useSWR from 'swr'
 import MovieDetails from '../../components/movie-details'
 import { IDSearchResult, Torrent, YIFYResult } from '../../interfaces'
 
-const fetcher = (url: string) => fetch(url).then(res => res.json())
-
 const MovieDetail = ({ data }: { data: IDSearchResult }) => {
   const router = useRouter()
 
@@ -23,9 +21,7 @@ const MovieDetail = ({ data }: { data: IDSearchResult }) => {
     status === 'authenticated'
       ? `https://yts.mx/api/v2/list_movies.json?query_term=${router.query.imdbId}`
       : null,
-    fetcher,
     {
-      revalidateOnFocus: false,
       onSuccess: (dataS: YIFYResult) => {
         if (dataS.status === 'ok' && dataS.data.movie_count > 0) {
           setTorrents(dataS.data.movies[0].torrents)
