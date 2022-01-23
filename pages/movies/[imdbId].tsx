@@ -1,8 +1,5 @@
-import { GetServerSideProps, GetStaticPaths, GetStaticProps } from 'next'
-import { getSession, useSession } from 'next-auth/react'
-import { useRouter } from 'next/router'
-import { useState } from 'react'
-import useSWR from 'swr'
+import { GetServerSideProps } from 'next'
+import { getSession } from 'next-auth/react'
 import MovieDetails from '../../components/movie-details'
 import { IDSearchResult, Torrent, YIFYResult } from '../../interfaces'
 
@@ -15,34 +12,6 @@ const MovieDetail = ({
   torrents: Torrent[]
   poster: string
 }) => {
-  const router = useRouter()
-
-  // const [torrents, setTorrents] = useState<Torrent[] | undefined>()
-  // const [posterHQ, setPosterHQ] = useState<string | undefined>()
-
-  // const { status } = useSession({
-  //   required: true,
-  //   onUnauthenticated: () => router.replace('/')
-  // })
-
-  // useSWR(
-  //   status === 'authenticated'
-  //     ? `https://yts.mx/api/v2/list_movies.json?query_term=${router.query.imdbId}`
-  //     : null,
-  //   {
-  //     onSuccess: (dataS: YIFYResult) => {
-  //       if (dataS.status === 'ok' && dataS.data.movie_count > 0) {
-  //         setTorrents(dataS.data.movies[0].torrents)
-  //         if (dataS.data.movies[0].large_cover_image) {
-  //           setPosterHQ(dataS.data.movies[0].large_cover_image)
-  //         }
-  //       }
-  //     }
-  //   }
-  // )
-
-  // if (status === 'loading') return <></>
-
   if (data.Response === 'False') {
     return <p className='center fs-2 mt-2'>{data.Error}</p>
   }
@@ -121,30 +90,5 @@ export const getServerSideProps: GetServerSideProps = async context => {
     props: { data, torrents, poster }
   }
 }
-
-// export const getStaticProps: GetStaticProps = async context => {
-//   if (!context.params!.imdbId!.includes('tt')) {
-//     return {
-//       props: { data: { Response: 'False', Error: 'Incorrect IMDb ID' } }
-//     }
-//   }
-
-//   const response = await fetch(
-//     `http://www.omdbapi.com/?i=${context.params!.imdbId}&apikey=${process.env.API_KEY}`
-//   )
-
-//   const data: IDSearchResult = await response.json()
-
-//   return {
-//     props: { data }
-//   }
-// }
-
-// export const getStaticPaths: GetStaticPaths = async () => {
-//   return {
-//     paths: [],
-//     fallback: 'blocking'
-//   }
-// }
 
 export default MovieDetail

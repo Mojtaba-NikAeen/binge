@@ -15,10 +15,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(401).json({ msg: 'not authorized to use this route' })
     }
 
-    const foundUser = await User.findOne({ _id: session.user?.name }).populate({
-      path: 'watchlistV watchedV',
-      model: Movie
-    })
+    const foundUser = await User.findOne({ _id: session.user?.name })
+      .select('watchlist watched')
+      .populate({
+        path: 'watchlistV watchedV',
+        model: Movie
+      })
 
     res.status(200).json({ data: foundUser })
   } catch (error) {
