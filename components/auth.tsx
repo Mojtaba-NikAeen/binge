@@ -11,6 +11,7 @@ const Auth = ({ login }: AuthProps) => {
   const router = useRouter()
   const [formMsg, setFormMsg] = useState<string>()
   const [verifyLink, setVerifyLink] = useState<boolean>(false)
+  const [disabledBtn, setDisabledBtn] = useState<boolean>(false)
 
   const emailRef = useRef<HTMLInputElement>(null!)
   const passwordRef = useRef<HTMLInputElement>(null!)
@@ -18,6 +19,7 @@ const Auth = ({ login }: AuthProps) => {
   const clearMsg = () => setTimeout(() => setFormMsg(undefined), 3500)
 
   const submitHandler = async (event: FormEvent<HTMLFormElement>) => {
+    setDisabledBtn(true)
     event.preventDefault()
 
     const email = emailRef.current.value
@@ -26,12 +28,14 @@ const Auth = ({ login }: AuthProps) => {
     if (!email || !email.includes('@')) {
       setFormMsg('please provide a valid email')
       clearMsg()
+      setDisabledBtn(false)
       return
     }
 
     if (!password || password.length < 6) {
       setFormMsg('please provide a valid password (no less than 6 characters)')
       clearMsg()
+      setDisabledBtn(false)
       return
     }
 
@@ -42,11 +46,13 @@ const Auth = ({ login }: AuthProps) => {
           setFormMsg(result.error)
           clearMsg()
           setVerifyLink(true)
+          setDisabledBtn(false)
           return
         }
         if (result.error) {
           setFormMsg(result.error)
           clearMsg()
+          setDisabledBtn(false)
           return
         }
 
@@ -54,6 +60,7 @@ const Auth = ({ login }: AuthProps) => {
       } catch (error) {
         setFormMsg('failed, try again')
         clearMsg()
+        setDisabledBtn(false)
       }
     } else {
       try {
@@ -68,6 +75,7 @@ const Auth = ({ login }: AuthProps) => {
         const data = await res.json()
         if (!data.success) {
           setFormMsg(data.msg)
+          setDisabledBtn(false)
           return
         }
 
@@ -79,6 +87,7 @@ const Auth = ({ login }: AuthProps) => {
       } catch (error) {
         setFormMsg('something went wrong')
         clearMsg()
+        setDisabledBtn(false)
       }
     }
   }
@@ -106,8 +115,12 @@ const Auth = ({ login }: AuthProps) => {
               </div>
               {formMsg && <p className='text-center bg-warning p-2 rounded'>{formMsg}</p>}
               <div className='form-group'>
-                <button type='submit' className='form-control btn btn-primary rounded submit px-3'>
-                  {login ? 'Log In' : 'Sign Up'}
+                <button
+                  type='submit'
+                  disabled={disabledBtn}
+                  className='form-control btn btn-primary rounded submit px-3'
+                >
+                  {(disabledBtn && 'Sending..') || (login ? 'Log In' : 'Sign Up')}
                 </button>
               </div>
             </form>
