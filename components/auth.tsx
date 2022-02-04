@@ -120,7 +120,7 @@ const Auth = ({ login }: AuthProps) => {
                   disabled={disabledBtn}
                   className='form-control btn btn-primary rounded submit px-3'
                 >
-                  {(disabledBtn && 'Sending..') || (login ? 'Log In' : 'Sign Up')}
+                  {(disabledBtn && 'Sending...') || (login ? 'Log In' : 'Sign Up')}
                 </button>
               </div>
             </form>

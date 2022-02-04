@@ -14,7 +14,7 @@ const NavBar = () => {
 
   const auth = (
     <>
-      <Link href={'/profile'}>
+      <Link href={'/user/profile'}>
         <a className={classes.roundedBtn}>
           <abbr title='Profile' style={{ cursor: 'pointer' }}>
             <Image src={'/profile.png'} alt='profile logo' width={58} height={58} unoptimized />

@@ -3,9 +3,9 @@ import { getSession, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { ChangeEvent, useState } from 'react'
 import useSWR from 'swr'
-import Feedback from '../components/feedback'
-import List from '../components/list'
-import { DataSWR, Watch } from '../interfaces'
+import Feedback from '../../components/feedback'
+import List from '../../components/list'
+import { DataSWR, Watch } from '../../interfaces'
 
 interface Feedback {
   message: string
@@ -433,9 +433,20 @@ const ProfilePage = () => {
 }
 
 export const getServerSideProps: GetServerSideProps = async context => {
+  const session = await getSession(context)
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+    }
+  }
+
   return {
     props: {
-      session: await getSession(context)
+      session
     }
   }
 }
