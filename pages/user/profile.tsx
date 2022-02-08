@@ -5,7 +5,7 @@ import { ChangeEvent, useState } from 'react'
 import { useQuery } from 'react-query'
 import Feedback from '../../components/feedback'
 import List from '../../components/list'
-import { DataSWR, Watch } from '../../interfaces'
+import { UserQuery, Watch } from '../../interfaces'
 import { fetchUser } from '../../libs/reactQuery'
 
 interface Feedback {
@@ -53,7 +53,7 @@ const ProfilePage = () => {
     onUnauthenticated: () => router.replace('/')
   })
 
-  const { data, error, refetch } = useQuery<DataSWR>('user', fetchUser, {
+  const { data, error, refetch } = useQuery<UserQuery>('user', fetchUser, {
     onSuccess: data => {
       if (fWatched && reqType === 'remove') {
         setFWatched(ps =>
