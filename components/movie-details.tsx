@@ -1,100 +1,43 @@
 import Image from 'next/image'
 import { useState } from 'react'
-import { useQuery } from 'react-query'
+import { useMutation, useQuery } from 'react-query'
 import { UserQuery, IDSearchResult } from '../interfaces'
-import { fetchUser } from '../libs/reactQuery'
+import {
+  addToWatched,
+  addToWatchlist,
+  fetchUser,
+  queryClient,
+  removeMovie
+} from '../libs/reactQuery'
 import classes from './movie-details.module.css'
 
 const MovieDetails = ({ results }: { results: IDSearchResult }) => {
   const [lists, setLists] = useState<any>()
 
-  const { refetch } = useQuery<UserQuery>('user', fetchUser, {
+  useQuery<UserQuery>('user', fetchUser, {
     onSuccess: data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist })
+  })
+
+  // TODO handle them errors
+  const addToWatchedMutation = useMutation(addToWatched, {
+    onSuccess: () => queryClient.invalidateQueries('user'),
+    onError: () => console.log('error addtowatched')
+  })
+
+  const addToWatchlistMutation = useMutation(addToWatchlist, {
+    onSuccess: () => queryClient.invalidateQueries('user'),
+    onError: () => console.log('error addtowatchlist')
+  })
+
+  const removeMovieMutation = useMutation(removeMovie, {
+    onSuccess: () => queryClient.invalidateQueries('user'),
+    onError: () => console.log('error removemovie')
   })
 
   if (!lists) return <p className='center fs-4 mt-2'>Loading...</p>
 
-  const isInWatched = lists.watched.includes(results.imdbID)
-  const isInWatchlist = lists.watchlist.includes(results.imdbID)
-
-  const addToWatched = async () => {
-    try {
-      const res = await fetch('/api/movies/watched', {
-        method: 'PATCH',
-        body: JSON.stringify({
-          imdbid: results.imdbID,
-          title: results.Title,
-          year: results.Year,
-          poster: results.Poster
-        }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-
-      await res.json()
-      refetch()
-    } catch (error: any) {
-      console.log(error.message)
-    }
-  }
-
-  const addToWatchlist = async () => {
-    try {
-      const res = await fetch('/api/movies/watchlist', {
-        method: 'PATCH',
-        body: JSON.stringify({
-          imdbid: results.imdbID,
-          title: results.Title,
-          year: results.Year,
-          poster: results.Poster
-        }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-
-      await res.json()
-      refetch()
-    } catch (error: any) {
-      console.log(error.message)
-    }
-  }
-
-  const removeMovie = async () => {
-    if (isInWatchlist) {
-      try {
-        const res = await fetch('/api/movies/watchlist', {
-          method: 'DELETE',
-          body: JSON.stringify({ imdbid: results.imdbID }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-
-        await res.json()
-        refetch()
-      } catch (error: any) {
-        console.log(error.message || 'something went wrong')
-      }
-    } else if (isInWatched) {
-      try {
-        const res = await fetch('/api/movies/watched', {
-          method: 'DELETE',
-          body: JSON.stringify({ imdbid: results.imdbID }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-
-        await res.json()
-        refetch()
-      } catch (error: any) {
-        console.log(error.message || 'something went wrong')
-      }
-    }
-    return
-  }
+  const isInWatched: boolean = lists.watched.includes(results.imdbID)
+  const isInWatchlist: boolean = lists.watchlist.includes(results.imdbID)
 
   const poster = results.Poster !== 'N/A' ? results.Poster : '/placeholder.png'
 
@@ -102,13 +45,7 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
     <div className='container card mb-3 mt-5 p-0'>
       <div className='row g-0'>
         <div className={`col-md-5 ${classes.image}`}>
-          <Image
-            src={poster}
-            alt={`${results.Title} poster`}
-            width={300}
-            height={444}
-            unoptimized
-          />
+          <Image src={poster} alt={`${results.Title} poster`} width={300} height={444} />
         </div>
         <div className='col-md-7'>
           <div className='card-body'>
@@ -144,7 +81,14 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
               <button
                 type='button'
                 className={`btn ${isInWatched ? 'btn-success' : 'btn-outline-success'}`}
-                onClick={addToWatched}
+                onClick={() =>
+                  addToWatchedMutation.mutate({
+                    imdbid: results.imdbID,
+                    poster: results.Poster,
+                    title: results.Title,
+                    year: results.Year
+                  })
+                }
                 disabled={isInWatched}
               >
                 {isInWatched ? 'Watched' : 'Add to Watched'}
@@ -153,14 +97,30 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
                 <button
                   type='button'
                   className={`btn ${isInWatchlist ? 'btn-info' : 'btn-outline-info'}`}
-                  onClick={addToWatchlist}
+                  onClick={() =>
+                    addToWatchlistMutation.mutate({
+                      imdbid: results.imdbID,
+                      poster: results.Poster,
+                      title: results.Title,
+                      year: results.Year
+                    })
+                  }
                   disabled={isInWatchlist || isInWatched}
                 >
                   {isInWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
                 </button>
               )}
               {(isInWatched || isInWatchlist) && (
-                <button type='button' className='btn btn-outline-danger' onClick={removeMovie}>
+                <button
+                  type='button'
+                  className='btn btn-outline-danger'
+                  onClick={() =>
+                    removeMovieMutation.mutate({
+                      imdbid: results.imdbID,
+                      isInWatchlist: isInWatchlist
+                    })
+                  }
+                >
                   Remove
                 </button>
               )}

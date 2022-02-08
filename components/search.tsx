@@ -12,7 +12,7 @@ const Search = () => {
 
   const searchHandler = async (name: string) => {
     try {
-      const res = await fetch(`/api/search/?name=${name}&page=1`)
+      const res = await fetch(`/api/search?name=${name}&page=1`)
 
       const data: ResponseData = await res.json()
       if (!data.success) {
@@ -34,7 +34,7 @@ const Search = () => {
 
   const pageLoader = async (page: number, name: string) => {
     try {
-      const res = await fetch(`/api/search/?name=${name}&page=${page}`)
+      const res = await fetch(`/api/search?name=${name}&page=${page}`)
 
       const data: ResponseData = await res.json()
 

@@ -3,80 +3,29 @@ import Link from 'next/link'
 import classes from './results.module.css'
 import { UserQuery, SearchResult } from '../interfaces'
 import { memo, useState } from 'react'
-import { fetchUser } from '../libs/reactQuery'
-import { useQuery } from 'react-query'
+import { fetchUser, addToWatched, queryClient, addToWatchlist } from '../libs/reactQuery'
+import { useMutation, useQuery } from 'react-query'
 
 const Results = ({ items }: { items: SearchResult | undefined }) => {
   const [lists, setLists] = useState<any>()
 
-  const { refetch } = useQuery<UserQuery>('user', fetchUser, {
+  useQuery<UserQuery>('user', fetchUser, {
     onSuccess: data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist })
+  })
+
+  // TODO handle them errors
+  const addToWatchedMutation = useMutation(addToWatched, {
+    onSuccess: () => queryClient.invalidateQueries('user'),
+    onError: () => console.log('error addtowatched')
+  })
+
+  const addToWatchlistMutation = useMutation(addToWatchlist, {
+    onSuccess: () => queryClient.invalidateQueries('user'),
+    onError: () => console.log('error addtowatchlist')
   })
 
   if (!items || items.Error) {
     return <p>{items?.Error}</p> || <p>nothing was found</p>
-  }
-
-  const addToWatchedHandler = async (
-    imdbid: string,
-    title: string,
-    year: string,
-    poster: string
-  ) => {
-    try {
-      const res = await fetch('/api/movies/watched', {
-        method: 'PATCH',
-        body: JSON.stringify({ imdbid, title, year, poster }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-
-      await res.json()
-      refetch()
-    } catch (error: any) {
-      const btn = document.getElementById(imdbid) as HTMLButtonElement
-      btn.disabled = true
-      btn.textContent = 'Failed, Try Again'
-
-      setTimeout(() => {
-        btn.disabled = false
-        btn.textContent = 'Add to Watched'
-      }, 3000)
-
-      console.log(error.message || 'it all went wrong')
-    }
-  }
-
-  const addToWatchlistHandler = async (
-    imdbid: string,
-    title: string,
-    year: string,
-    poster: string
-  ) => {
-    try {
-      const res = await fetch('/api/movies/watchlist', {
-        method: 'PATCH',
-        body: JSON.stringify({ imdbid, title, year, poster }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-
-      await res.json()
-      refetch()
-    } catch (error: any) {
-      const btn = document.getElementById(`watchlist${imdbid}`) as HTMLButtonElement
-      btn.disabled = true
-      btn.textContent = 'Failed, Try Again'
-
-      setTimeout(() => {
-        btn.disabled = false
-        btn.textContent = 'Add to Watchlist'
-      }, 3000)
-
-      console.log(error.message || 'it all went wrong')
-    }
   }
 
   return (
@@ -113,7 +62,12 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
                     }`}
                     disabled={lists.watched.includes(item.imdbID)}
                     onClick={() =>
-                      addToWatchedHandler(item.imdbID, item.Title, item.Year, item.Poster)
+                      addToWatchedMutation.mutate({
+                        imdbid: item.imdbID,
+                        title: item.Title,
+                        year: item.Year,
+                        poster: item.Poster
+                      })
                     }
                   >
                     {lists.watched.includes(item.imdbID) ? 'Watched' : 'Add to Watched'}
@@ -126,7 +80,12 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
                       lists.watchlist.includes(item.imdbID) || lists.watched.includes(item.imdbID)
                     }
                     onClick={() =>
-                      addToWatchlistHandler(item.imdbID, item.Title, item.Year, item.Poster)
+                      addToWatchlistMutation.mutate({
+                        imdbid: item.imdbID,
+                        title: item.Title,
+                        year: item.Year,
+                        poster: item.Poster
+                      })
                     }
                   >
                     {lists.watchlist.includes(item.imdbID) ? 'In Watchlist' : 'Add to Watchlist'}
