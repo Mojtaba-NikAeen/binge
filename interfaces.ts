@@ -53,7 +53,7 @@ export interface ResponseData {
   msg?: string
 }
 
-export interface DataSWR {
+export interface UserQuery {
   data: Data
 }
 

@@ -1,14 +1,15 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import classes from './results.module.css'
-import { SearchResult } from '../interfaces'
-import { memo, useEffect, useState } from 'react'
-import useSWR from 'swr'
+import { UserQuery, SearchResult } from '../interfaces'
+import { memo, useState } from 'react'
+import { fetchUser } from '../libs/reactQuery'
+import { useQuery } from 'react-query'
 
 const Results = ({ items }: { items: SearchResult | undefined }) => {
   const [lists, setLists] = useState<any>()
 
-  const { mutate } = useSWR('/api/user', {
+  const { refetch } = useQuery<UserQuery>('user', fetchUser, {
     onSuccess: data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist })
   })
 
@@ -32,8 +33,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
       })
 
       await res.json()
-
-      mutate()
+      refetch()
     } catch (error: any) {
       const btn = document.getElementById(imdbid) as HTMLButtonElement
       btn.disabled = true
@@ -64,8 +64,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
       })
 
       await res.json()
-
-      mutate()
+      refetch()
     } catch (error: any) {
       const btn = document.getElementById(`watchlist${imdbid}`) as HTMLButtonElement
       btn.disabled = true

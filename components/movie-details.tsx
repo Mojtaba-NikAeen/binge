@@ -1,7 +1,8 @@
 import Image from 'next/image'
 import { useState } from 'react'
-import useSWR from 'swr'
-import { IDSearchResult } from '../interfaces'
+import { useQuery } from 'react-query'
+import { UserQuery, IDSearchResult } from '../interfaces'
+import { fetchUser } from '../libs/reactQuery'
 import classes from './movie-details.module.css'
 
 const MovieDetails = ({
@@ -13,7 +14,7 @@ const MovieDetails = ({
 }) => {
   const [lists, setLists] = useState<any>()
 
-  const { mutate } = useSWR('/api/user', {
+  const { refetch } = useQuery<UserQuery>('user', fetchUser, {
     onSuccess: data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist })
   })
 
@@ -38,7 +39,7 @@ const MovieDetails = ({
       })
 
       await res.json()
-      mutate()
+      refetch()
     } catch (error: any) {
       console.log(error.message)
     }
@@ -60,7 +61,7 @@ const MovieDetails = ({
       })
 
       await res.json()
-      mutate()
+      refetch()
     } catch (error: any) {
       console.log(error.message)
     }
@@ -78,7 +79,7 @@ const MovieDetails = ({
         })
 
         await res.json()
-        mutate()
+        refetch()
       } catch (error: any) {
         console.log(error.message || 'something went wrong')
       }
@@ -93,7 +94,7 @@ const MovieDetails = ({
         })
 
         await res.json()
-        mutate()
+        refetch()
       } catch (error: any) {
         console.log(error.message || 'something went wrong')
       }

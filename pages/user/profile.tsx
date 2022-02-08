@@ -2,10 +2,11 @@ import { GetServerSideProps } from 'next'
 import { getSession, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { ChangeEvent, useState } from 'react'
-import useSWR from 'swr'
+import { useQuery } from 'react-query'
 import Feedback from '../../components/feedback'
 import List from '../../components/list'
 import { DataSWR, Watch } from '../../interfaces'
+import { fetchUser } from '../../libs/reactQuery'
 
 interface Feedback {
   message: string
@@ -15,13 +16,20 @@ interface Feedback {
 const splitData = (array: any[], part: number, number: number) =>
   array ? array.slice(0, part * number) : undefined
 
-const clearInput = () => ((document.getElementById('searchinput') as HTMLInputElement).value = '')
+const clearInput = () => {
+  const searchInput = document.getElementById('searchinput') as HTMLInputElement
+  searchInput ? (searchInput.value = '') : null
+}
 
-const refreshOrder = () =>
-  ((document.getElementById('orderSelect') as HTMLSelectElement).value = 'asc')
+const refreshOrder = () => {
+  const orderSelect = document.getElementById('orderSelect') as HTMLSelectElement
+  orderSelect ? (orderSelect.value = 'asc') : null
+}
 
-const refreshSort = () =>
-  ((document.getElementById('sortSelect') as HTMLSelectElement).value = 'date')
+const refreshSort = () => {
+  const sortSelect = document.getElementById('sortSelect') as HTMLSelectElement
+  sortSelect ? (sortSelect.value = 'date') : null
+}
 
 const ProfilePage = () => {
   const [watchedPage, setWatchedPage] = useState({ pageNumber: 1, totalPage: 0, totalResults: 0 })
@@ -45,7 +53,7 @@ const ProfilePage = () => {
     onUnauthenticated: () => router.replace('/')
   })
 
-  const { data, error, mutate } = useSWR<DataSWR>('/api/user/', {
+  const { data, error, refetch } = useQuery<DataSWR>('user', fetchUser, {
     onSuccess: data => {
       if (fWatched && reqType === 'remove') {
         setFWatched(ps =>
@@ -118,10 +126,11 @@ const ProfilePage = () => {
         totalResults: ps.totalResults + 1,
         totalPage: Math.ceil((ps.totalResults + 1) / 4)
       }))
-      mutate()
+      refetch()
       clearInput()
     } catch (error: any) {
-      console.log(error.message || 'something went wrong')
+      setFeedback({ message: 'Something Went Wrong', status: 'danger' })
+      clearFeedback()
     }
   }
 
@@ -146,14 +155,14 @@ const ProfilePage = () => {
               ? ps.pageNumber - 1
               : ps.pageNumber,
           totalResults: ps.totalResults - 1,
-          totalPage: Math.ceil((ps.totalResults - 1) / 4)
+          totalPage:
+            Math.floor((ps.totalResults - 1) / 4) === 0 ? 1 : Math.floor((ps.totalResults - 1) / 4)
         }))
         setReqType('remove')
-        mutate()
+        refetch()
       } catch (error: any) {
         setFeedback({ message: 'Something Went Wrong', status: 'danger' })
         clearFeedback()
-        console.log(error.message || 'something went wrong')
       }
     } else if (name === 'watched') {
       try {
@@ -176,15 +185,15 @@ const ProfilePage = () => {
               ? ps.pageNumber - 1
               : ps.pageNumber,
           totalResults: ps.totalResults - 1,
-          totalPage: Math.ceil((ps.totalResults - 1) / 4)
+          totalPage:
+            Math.floor((ps.totalResults - 1) / 4) === 0 ? 1 : Math.floor((ps.totalResults - 1) / 4)
         }))
 
         setReqType('remove')
-        mutate()
+        refetch()
       } catch (error: any) {
         setFeedback({ message: 'Something Went Wrong', status: 'danger' })
         clearFeedback()
-        console.log(error.message || 'something went wrong')
       }
     }
     return
@@ -239,12 +248,16 @@ const ProfilePage = () => {
 
     refreshOrder()
     refreshSort()
-    setWatchedPage(ps => ({ ...ps, totalPage: Math.ceil(foundWatched.length / 4), pageNumber: 1 }))
-    setWatchlistPage(ps => ({
-      ...ps,
-      totalPage: Math.ceil(foundWatchlist.length / 4),
-      pageNumber: 1
-    }))
+    setWatchedPage({
+      pageNumber: 1,
+      totalResults: foundWatched.length,
+      totalPage: Math.ceil(foundWatched.length / 4)
+    })
+    setWatchlistPage({
+      pageNumber: 1,
+      totalResults: foundWatchlist.length,
+      totalPage: Math.ceil(foundWatchlist.length / 4)
+    })
     setFWatched(foundWatched)
     setFWatchlist(foundWatchlist)
   }

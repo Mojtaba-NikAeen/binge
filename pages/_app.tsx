@@ -3,17 +3,14 @@ import type { AppProps } from 'next/app'
 import Layout from '../components/layout'
 import Head from 'next/head'
 import { SessionProvider } from 'next-auth/react'
-import { SWRConfig } from 'swr'
+import { queryClient } from '../libs/reactQuery'
+import { QueryClientProvider } from 'react-query'
+import { ReactQueryDevtools } from 'react-query/devtools'
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
-    <SessionProvider session={session}>
-      <SWRConfig
-        value={{
-          revalidateOnFocus: false,
-          fetcher: (url: string) => fetch(url).then(res => res.json())
-        }}
-      >
+    <QueryClientProvider client={queryClient}>
+      <SessionProvider session={session}>
         <Layout>
           <Head>
             <title>BingedThat</title>
@@ -30,8 +27,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
           </Head>
           <Component {...pageProps} />
         </Layout>
-      </SWRConfig>
-    </SessionProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </SessionProvider>
+    </QueryClientProvider>
   )
 }
 
