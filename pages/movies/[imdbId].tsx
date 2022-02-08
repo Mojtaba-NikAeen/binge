@@ -78,16 +78,16 @@ export const getServerSideProps: GetServerSideProps = async context => {
   const yifyRes: YIFYResult = await yify.json()
 
   let torrents
-  let poster
+  // let poster
   if (yifyRes.status === 'ok' && yifyRes.data.movie_count > 0) {
     torrents = yifyRes.data.movies[0].torrents
     if (yifyRes.data.movies[0].large_cover_image) {
-      poster = yifyRes.data.movies[0].large_cover_image
+      data.Poster = yifyRes.data.movies[0].large_cover_image
     }
   }
 
   return {
-    props: { data, torrents, poster }
+    props: { data, torrents }
   }
 }
 
