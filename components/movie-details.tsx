@@ -5,13 +5,7 @@ import { UserQuery, IDSearchResult } from '../interfaces'
 import { fetchUser } from '../libs/reactQuery'
 import classes from './movie-details.module.css'
 
-const MovieDetails = ({
-  results,
-  hqPoster
-}: {
-  results: IDSearchResult
-  hqPoster: string | undefined
-}) => {
+const MovieDetails = ({ results }: { results: IDSearchResult }) => {
   const [lists, setLists] = useState<any>()
 
   const { refetch } = useQuery<UserQuery>('user', fetchUser, {
@@ -102,11 +96,7 @@ const MovieDetails = ({
     return
   }
 
-  const poster = hqPoster
-    ? hqPoster
-    : results.Poster !== 'N/A'
-    ? results.Poster
-    : '/placeholder.png'
+  const poster = results.Poster !== 'N/A' ? results.Poster : '/placeholder.png'
 
   return (
     <div className='container card mb-3 mt-5 p-0'>

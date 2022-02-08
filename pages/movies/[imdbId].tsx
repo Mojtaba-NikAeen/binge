@@ -3,22 +3,14 @@ import { getSession } from 'next-auth/react'
 import MovieDetails from '../../components/movie-details'
 import { IDSearchResult, Torrent, YIFYResult } from '../../interfaces'
 
-const MovieDetail = ({
-  data,
-  torrents,
-  poster
-}: {
-  data: IDSearchResult
-  torrents: Torrent[]
-  poster: string
-}) => {
+const MovieDetail = ({ data, torrents }: { data: IDSearchResult; torrents: Torrent[] }) => {
   if (data.Response === 'False') {
     return <p className='center fs-2 mt-2'>{data.Error}</p>
   }
 
   return (
     <>
-      <MovieDetails results={data} hqPoster={poster} />
+      <MovieDetails results={data} />
 
       <div className='container bg-light rounded-3 mt-5'>
         <h3 className='mt-2 mb-2 center'>Download this movie via torrent</h3>
@@ -78,7 +70,6 @@ export const getServerSideProps: GetServerSideProps = async context => {
   const yifyRes: YIFYResult = await yify.json()
 
   let torrents
-  // let poster
   if (yifyRes.status === 'ok' && yifyRes.data.movie_count > 0) {
     torrents = yifyRes.data.movies[0].torrents
     if (yifyRes.data.movies[0].large_cover_image) {
