@@ -26,7 +26,11 @@ const MovieDetail = ({ data, torrents }: { data: IDSearchResult; torrents: Torre
                     {data.Title} {data.Year} {d.quality} {d.type} ({d.size})
                   </div>
                 </div>
-                <a href={d.url} className='badge btn btn-dark'>
+                <a
+                  href={d.url}
+                  className='badge btn btn-dark'
+                  style={{ display: 'block', textDecoration: 'none', color: 'black' }}
+                >
                   Download
                 </a>
               </li>
