@@ -21,6 +21,13 @@ h6 {
   color: #2b2b2b;
 }
 
+.posterlink {
+  display: 'block';
+  text-decoration: 'none';
+  color: 'black';
+  margin-bottom: 1rem;
+}
+
 ul {
   list-style-type: none;
 }

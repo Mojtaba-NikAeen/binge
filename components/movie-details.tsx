@@ -84,8 +84,8 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
             <p className='card-text'>
               Rated: <small className='text-muted'>{results.Rated}</small>
             </p>
-            <a href={results.Poster} target='_blank' rel='noreferrer'>
-              Click to see HQ Poster
+            <a href={results.Poster} target='_blank' rel='noreferrer' className='posterlink'>
+              Click to see Poster in Original Size
             </a>
             <div className='btn-group'>
               <button
