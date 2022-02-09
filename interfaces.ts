@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react'
+
 export interface SearchResult {
   Error?: string
   Search: Search[]
@@ -84,8 +86,7 @@ export interface PaginationProps {
   next: number
   currentPage: number
   totalPage: number
-  name: string
-  loadPageFn?: (page: number, name: string) => Promise<void>
+  setPage?: Dispatch<SetStateAction<number>>
 }
 
 export interface YIFYResult {

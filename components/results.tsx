@@ -4,11 +4,11 @@ import classes from './results.module.css'
 import { UserQuery, SearchResult } from '../interfaces'
 import { memo, useState } from 'react'
 import { fetchUser, addToWatched, queryClient, addToWatchlist } from '../libs/reactQuery'
-import { useMutation, useQuery } from 'react-query'
+import { useMutation, useQuery, useIsFetching } from 'react-query'
 
 const Results = ({ items }: { items: SearchResult | undefined }) => {
   const [lists, setLists] = useState<any>()
-
+  const isFetching = useIsFetching()
   useQuery<UserQuery>('user', fetchUser, {
     onSuccess: data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist })
   })
@@ -60,7 +60,7 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
                     className={`btn ${
                       lists.watched.includes(item.imdbID) ? 'btn-success' : 'btn-outline-success'
                     }`}
-                    disabled={lists.watched.includes(item.imdbID)}
+                    disabled={lists.watched.includes(item.imdbID) || !!isFetching}
                     onClick={() =>
                       addToWatchedMutation.mutate({
                         imdbid: item.imdbID,
@@ -77,7 +77,9 @@ const Results = ({ items }: { items: SearchResult | undefined }) => {
                       lists.watchlist.includes(item.imdbID) ? 'btn-warning' : 'btn-outline-warning'
                     }`}
                     disabled={
-                      lists.watchlist.includes(item.imdbID) || lists.watched.includes(item.imdbID)
+                      lists.watchlist.includes(item.imdbID) ||
+                      lists.watched.includes(item.imdbID) ||
+                      !!isFetching
                     }
                     onClick={() =>
                       addToWatchlistMutation.mutate({

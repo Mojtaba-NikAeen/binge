@@ -18,6 +18,7 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
     onSuccess: data => setLists({ watched: data.data.watched, watchlist: data.data.watchlist })
   })
 
+  // TODO add high quality poster link
   // TODO handle them errors
   const addToWatchedMutation = useMutation(addToWatched, {
     onSuccess: () => queryClient.invalidateQueries('user'),

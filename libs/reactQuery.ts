@@ -1,4 +1,5 @@
 import { QueryClient } from 'react-query'
+import { ResponseData } from '../interfaces'
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -86,5 +87,10 @@ export const removeMovie = async ({
 
     return res.json()
   }
-  return
+}
+
+export const searchMovies = async (name: string, page: number): Promise<ResponseData> => {
+  const res = await fetch(`/api/search?name=${name}&page=${page}`)
+
+  return res.json()
 }

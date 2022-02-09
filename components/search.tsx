@@ -1,20 +1,23 @@
 import { useState } from 'react'
 import Results from './results'
 import SearchBar from './search-bar'
-import { PaginationProps, ResponseData, SearchResult } from '../interfaces'
+import { PaginationProps, SearchResult } from '../interfaces'
 import Pagination from './pagination'
+import { useQuery } from 'react-query'
+import { searchMovies } from '../libs/reactQuery'
 
 const Search = () => {
   const [results, setResults] = useState<SearchResult>()
-  const [nameState, setNameState] = useState<string>('')
+  const [nameState, setNameState] = useState<string | undefined>()
+  const [page, setPage] = useState<number>(1)
   const [pagination, setPagination] = useState<PaginationProps | undefined>()
   const [feedback, setFeedback] = useState<string | undefined>()
 
-  const searchHandler = async (name: string) => {
-    try {
-      const res = await fetch(`/api/search?name=${name}&page=1`)
-
-      const data: ResponseData = await res.json()
+  // TODO handle errors
+  useQuery(['search', nameState, page], () => searchMovies(nameState!, page), {
+    keepPreviousData: true,
+    enabled: !!nameState,
+    onSuccess: data => {
       if (!data.success) {
         setFeedback(data.msg)
         setResults(undefined)
@@ -23,34 +26,17 @@ const Search = () => {
         return
       }
       const totalPage = Math.ceil(+data.data!.totalResults / 10)
-
-      setPagination({ totalPage, currentPage: 1, prev: 0, next: 2, name })
-      setNameState(name)
+      setPagination({ totalPage, currentPage: page, prev: page - 1, next: page + 1 })
       setResults(data.data)
-    } catch (error: any) {
-      console.log(error.message)
+    },
+    onError: err => {
+      console.log(err)
     }
-  }
-
-  const pageLoader = async (page: number, name: string) => {
-    try {
-      const res = await fetch(`/api/search?name=${name}&page=${page}`)
-
-      const data: ResponseData = await res.json()
-
-      const totalPage = Math.ceil(+data.data!.totalResults / 10)
-      setPagination({ totalPage, currentPage: page, prev: page - 1, next: page + 1, name })
-      if (data.success === true) {
-        setResults(data.data)
-      }
-    } catch (error: any) {
-      console.log(error.message)
-    }
-  }
+  })
 
   return (
     <>
-      <SearchBar formHandler={searchHandler} />
+      <SearchBar setName={setNameState} />
       {feedback && <p className='w-75 center lead bg-info mt-2 rounded'>{feedback}</p>}
       <Results items={results} />
       {pagination && (
@@ -59,8 +45,7 @@ const Search = () => {
           currentPage={pagination.currentPage}
           prev={pagination.prev}
           next={pagination.next}
-          loadPageFn={pageLoader}
-          name={nameState}
+          setPage={setPage}
         />
       )}
     </>
