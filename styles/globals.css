@@ -21,7 +21,7 @@ h6 {
   color: #2b2b2b;
 }
 
-.posterlink {
+a.posterlink {
   display: 'block';
   text-decoration: 'none';
   color: 'black';
