@@ -23,7 +23,7 @@ const MovieDetail = ({ data, torrents }: { data: IDSearchResult; torrents: Torre
               >
                 <div className='ms-2 me-auto'>
                   <div className='fw-bold'>
-                    {data.Title} {data.Year} {d.quality} {d.type}
+                    {data.Title} {data.Year} {d.quality} {d.type} ({d.size})
                   </div>
                 </div>
                 <a href={d.url} className='badge btn btn-dark'>

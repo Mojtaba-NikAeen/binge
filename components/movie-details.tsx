@@ -46,7 +46,13 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
     <div className='container card mb-3 mt-5 p-0'>
       <div className='row g-0'>
         <div className={`col-md-5 ${classes.image}`}>
-          <Image src={poster} alt={`${results.Title} poster`} width={300} height={444} />
+          <Image
+            src={poster}
+            alt={`${results.Title} poster`}
+            width={300}
+            height={444}
+            quality={85}
+          />
         </div>
         <div className='col-md-7'>
           <div className='card-body'>
@@ -78,6 +84,9 @@ const MovieDetails = ({ results }: { results: IDSearchResult }) => {
             <p className='card-text'>
               Rated: <small className='text-muted'>{results.Rated}</small>
             </p>
+            <a href={results.Poster} target='_blank' rel='noreferrer'>
+              Click to see HQ Poster
+            </a>
             <div className='btn-group'>
               <button
                 type='button'
